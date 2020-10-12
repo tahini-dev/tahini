@@ -5,10 +5,10 @@ with open('README.md', 'r') as fh:
 
 setup(
     name='tahini',
-    version='2020.09',
+    version='2020.10',
     author='tahini-dev',
-    author_email='',
-    description='Python package for ...',
+    author_email='tahini.dev@gmail.com',
+    description='Python package for graph theory',
     long_description=long_description,
     url='https://github.com/tahini-dev/tahini',
     packages=find_packages(),
@@ -21,4 +21,5 @@ setup(
         'Programming Language:: Python :: 3.8',
         'Operating System :: OS Independent',
     ],
+    include_package_data=True
 )
