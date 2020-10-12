@@ -10,6 +10,7 @@ setup(
     author_email='tahini.dev@gmail.com',
     description='Python package for graph theory',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/tahini-dev/tahini',
     packages=find_packages(exclude=('tests',)),
     install_requires=[
