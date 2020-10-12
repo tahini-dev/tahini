@@ -11,7 +11,7 @@ setup(
     description='Python package for graph theory',
     long_description=long_description,
     url='https://github.com/tahini-dev/tahini',
-    packages=find_packages(),
+    packages=find_packages(exclude=('tests',)),
     install_requires=[
     ],
     python_requires='>=3.7',
