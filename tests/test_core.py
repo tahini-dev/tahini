@@ -72,3 +72,17 @@ def test_node_repr(node, args, kwargs, node_other, args_other, kwargs_other, exp
 def test_node_hash(node, args, kwargs, expected):
     actual = hash(node)
     assert actual == expected
+
+
+def get_node(*args, **kwargs):
+    return tahini.core.Node(*args, **kwargs)
+
+
+@pytest.mark.parametrize('args, kwargs', [
+    ([], dict()),
+    ([[get_node()]], dict()),
+    ([], dict(nodes=[get_node()])),
+])
+def test_nodes_init(args, kwargs):
+    nodes = tahini.core.Nodes(*args, **kwargs)
+    assert isinstance(nodes, tahini.core.Nodes)
