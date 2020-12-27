@@ -11,8 +11,10 @@ class Node:
     def __init__(
             self,
             name: Optional[Hashable] = None,
+            node: Optional[Node] = None,
     ):
-
+        if node is not None:
+            name = node.name
         if name is None:
             name = uuid4()
         if not isinstance(name, Hashable):
@@ -30,7 +32,7 @@ class Node:
         return self.name == other.name
 
     def __hash__(self):
-        if self._hash is None:
+        if getattr(self, '_hash', None) is None:
             self._hash = hash(self.name)
         return self._hash
 
@@ -68,7 +70,7 @@ class Nodes(Mapping, ABC):
         # so far, but this solution is O(n). I don't know what kind of
         # n we are going to run into, but sometimes it's hard to resist the
         # urge to optimize when it will gain improved algorithmic performance.
-        if self._hash is None:
+        if getattr(self, '_hash', None) is None:
             hash_ = 0
             for pair in self.items():
                 hash_ ^= hash(pair)

@@ -28,6 +28,7 @@ def node(args, kwargs):
     ([0], dict(), 'name', int),
     ([], dict(name=0), 'name', int),
     ([], dict(name='a'), 'name', str),
+    ([], dict(node=tahini.core.Node(name=0)), 'name', int)
 ])
 def test_node_attribute_type(node, args, kwargs, attribute, expected):
     assert isinstance(getattr(node, attribute), expected)
