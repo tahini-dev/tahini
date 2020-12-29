@@ -3,7 +3,7 @@
 |Service|Status|
 | -------------: | :---- |
 | Testing        | ![Python package](https://github.com/tahini-dev/tahini/workflows/Python%20package/badge.svg) |
-| Coverage       | [![Codecov branch](https://img.shields.io/codecov/c/github/ibis-project/ibis/master.svg)](https://codecov.io/gh/ibis-project/ibis) |
+| Coverage       | [![Codecov branch](https://img.shields.io/codecov/c/github/tahini-dev/tahini/master.svg)](https://codecov.io/gh/tahini-dev/tahini) |
 | PyPI           | ![Upload Python Package](https://github.com/tahini-dev/tahini/workflows/Upload%20Python%20Package/badge.svg) |
 
 Package for graph theory
