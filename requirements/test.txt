@@ -1,4 +1,4 @@
 pytest
 pytest-cov
 hypothesis
--r dev.txt
+-e .
