@@ -1,89 +1,118 @@
 import pytest
-from uuid import UUID
+from hypothesis import given
+import hypothesis.strategies as st
+from pandas import Timedelta
 
 import tahini.core
 
 
-def test_node_init():
-    node = tahini.core.Node()
-    assert isinstance(node, tahini.core.Node)
-
-
 @pytest.mark.parametrize('args, kwargs, error_type, error_message', [
-    ([], dict(name={}), TypeError, 'Input "name" needs to be hashable.')
+    ([], dict(), ValueError, 'Need to provide at least "data" or "index" or "size" for initializing "Nodes".'),
+    ([], dict(size=0.5), TypeError, "Wrong type <class 'float'> for value 0.5"),
 ])
-def test_node_init_error(args, kwargs, error_type, error_message):
+def test_nodes_init(args, kwargs, error_type, error_message):
+
     with pytest.raises(error_type) as e:
-        tahini.core.Node(*args, **kwargs)
+        tahini.core.Nodes(*args, **kwargs)
+
     assert e.value.args[0] == error_message
 
 
-@pytest.fixture
-def node(args, kwargs):
-    return tahini.core.Node(*args, **kwargs)
-
-
-@pytest.mark.parametrize('args, kwargs, attribute, expected', [
-    ([], dict(), 'name', UUID),
-    ([0], dict(), 'name', int),
-    ([], dict(name=0), 'name', int),
-    ([], dict(name='a'), 'name', str),
-    ([], dict(node=tahini.core.Node(name=0)), 'name', int)
-])
-def test_node_attribute_type(node, args, kwargs, attribute, expected):
-    assert isinstance(getattr(node, attribute), expected)
-
-
-@pytest.mark.parametrize('args, kwargs, attribute, expected', [
-    ([0], dict(), 'name', 0),
-    ([], dict(name=0), 'name', 0),
-    ([], dict(name='a'), 'name', 'a'),
-])
-def test_node_attribute(node, args, kwargs, attribute, expected):
-    assert getattr(node, attribute) == expected
-
-
-@pytest.mark.parametrize('args, kwargs, expected', [
-    ([], dict(name=0), 'Node(name=0)'),
-    ([], dict(name='0'), "Node(name='0')"),
-])
-def test_node_repr(node, args, kwargs, expected):
-    actual = repr(node)
-    assert actual == expected
-
-
-@pytest.fixture
-def node_other(args_other, kwargs_other):
-    return tahini.core.Node(*args_other, **kwargs_other)
-
-
-@pytest.mark.parametrize('args, kwargs, args_other, kwargs_other, expected', [
-    ([], dict(name=0), [], dict(name=0), True),
-    ([], dict(name='0'), [], dict(name=0), False),
-    ([], dict(), [], dict(), False),
-])
-def test_node_repr(node, args, kwargs, node_other, args_other, kwargs_other, expected):
-    actual = node == node_other
-    assert actual == expected
-
-
-@pytest.mark.parametrize('args, kwargs, expected', [
-    ([], dict(name=0), hash(0)),
-])
-def test_node_hash(node, args, kwargs, expected):
-    actual = hash(node)
-    assert actual == expected
-
-
-def get_node(*args, **kwargs):
-    return tahini.core.Node(*args, **kwargs)
-
-
 @pytest.mark.parametrize('args, kwargs', [
-    ([], dict()),
-    ([[get_node()]], dict()),
-    ([], dict(nodes=[get_node()])),
+    ([[]], dict()),
+    ([None, []], dict()),
+    ([None, None, 1], dict()),
+    ([], dict(data=[])),
+    ([], dict(index=[])),
+    ([], dict(data=[], index=[])),
+    ([], dict(data=[], size=1)),
+    ([], dict(data=[], size=-1)),
+    ([], dict(data=[], size=0)),
 ])
-def test_nodes_init(args, kwargs):
+def test_nodes_init_simple(args, kwargs):
     nodes = tahini.core.Nodes(*args, **kwargs)
+    assert isinstance(nodes, tahini.core.Nodes)
+
+
+containers_hashable = [
+    st.frozensets,
+    st.sets,
+]
+
+containers_non_hashable = [
+    st.iterables,
+    st.lists,
+    st.tuples,
+]
+
+containers_all = containers_hashable + containers_non_hashable
+
+
+@pytest.mark.parametrize('container_type', containers_non_hashable)
+@pytest.mark.parametrize('elements, elements_kwargs', [
+    (st.binary, dict()),
+    (st.booleans, dict()),
+    (st.characters, dict()),
+    (st.complex_numbers, dict()),
+    (st.dates, dict()),
+    (st.datetimes, dict()),
+    (st.decimals, dict()),
+    (st.floats, dict()),
+    (st.fractions, dict()),
+    (st.integers, dict()),
+    (st.text, dict()),
+    (st.timedeltas, dict(min_value=Timedelta.min.to_pytimedelta(), max_value=Timedelta.max.to_pytimedelta())),
+    (st.times, dict()),
+])
+@given(data=st.data())
+def test_nodes_init_index_multiple_container_non_hashable_and_data_type(
+        container_type,
+        elements,
+        elements_kwargs,
+        data,
+):
+    nodes = tahini.core.Nodes(index=data.draw(container_type(elements(**elements_kwargs))))
+    assert isinstance(nodes, tahini.core.Nodes)
+
+
+@pytest.mark.parametrize('container_type', containers_hashable)
+@pytest.mark.parametrize('elements, elements_kwargs', [
+    (st.binary, dict()),
+    (st.booleans, dict()),
+    (st.characters, dict()),
+    (st.complex_numbers, dict()),
+    (st.dates, dict()),
+    (st.datetimes, dict()),
+    (st.decimals, dict(allow_nan=False)),
+    (st.floats, dict()),
+    (st.fractions, dict()),
+    (st.integers, dict()),
+    (st.text, dict()),
+    (st.timedeltas, dict(min_value=Timedelta.min.to_pytimedelta(), max_value=Timedelta.max.to_pytimedelta())),
+    (st.times, dict()),
+])
+@given(data=st.data())
+def test_nodes_init_index_multiple_container_hashable_and_data_type(
+        container_type,
+        elements,
+        elements_kwargs,
+        data,
+):
+    nodes = tahini.core.Nodes(index=data.draw(container_type(elements(**elements_kwargs))))
+    assert isinstance(nodes, tahini.core.Nodes)
+
+
+@pytest.mark.xfail
+@pytest.mark.parametrize('container_type, elements', [
+    # pandas.Timedeltas max and min do not match python standard library datetime.timedelta max and min
+    *[(container, st.timedeltas) for container in containers_all],
+    # error with decimals with sets and frozensets
+    *[
+        (st.sets, st.decimals),
+        (st.frozensets, st.decimals),
+    ],
+])
+@given(data=st.data())
+def test_nodes_init_index_multiple_xfail(container_type, elements, data):
+    nodes = tahini.core.Nodes(index=data.draw(container_type(elements())))
     assert isinstance(nodes, tahini.core.Nodes)

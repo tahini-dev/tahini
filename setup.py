@@ -14,6 +14,7 @@ setup(
     url='https://github.com/tahini-dev/tahini',
     packages=find_packages(exclude=('tests',)),
     install_requires=[
+        'pandas',
     ],
     python_requires='>=3.7',
     include_package_data=True,
