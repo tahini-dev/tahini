@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 from hypothesis import given
 import hypothesis.strategies as st
-from hypothesis.extra.pandas import indexes
+from hypothesis.extra.pandas import indexes, columns, data_frames
 from pandas import Timedelta
 
 import tahini.core
@@ -138,4 +138,10 @@ def test_nodes_init_index_multiple_elements_type(container_type, list_elements_s
     nodes = tahini.core.Nodes(
         index=data.draw(container_type(elements=st.one_of(*list_elements, *list_elements_specific)))
     )
+    assert isinstance(nodes, tahini.core.Nodes)
+
+
+@given(data=data_frames(columns=(columns('A', elements=st.integers())), index=indexes(elements=st.integers())))
+def test_nodes_init_data(data):
+    nodes = tahini.core.Nodes(data=data)
     assert isinstance(nodes, tahini.core.Nodes)
