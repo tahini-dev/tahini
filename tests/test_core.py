@@ -3,6 +3,7 @@ from decimal import Decimal
 import pytest
 from hypothesis import given
 import hypothesis.strategies as st
+from hypothesis.extra.pandas import indexes
 from pandas import Timedelta
 
 import tahini.core
@@ -13,10 +14,8 @@ import tahini.core
     ([], dict(size=0.5), TypeError, "Wrong type <class 'float'> for value 0.5"),
 ])
 def test_nodes_init(args, kwargs, error_type, error_message):
-
     with pytest.raises(error_type) as e:
         tahini.core.Nodes(*args, **kwargs)
-
     assert e.value.args[0] == error_message
 
 
@@ -36,95 +35,107 @@ def test_nodes_init_simple(args, kwargs):
     assert isinstance(nodes, tahini.core.Nodes)
 
 
-containers_hashable = [
+containers_hashable = (
     st.frozensets,
     st.sets,
-]
+    indexes,
+)
 
-containers_non_hashable = [
+containers_non_hashable = (
     st.iterables,
     st.lists,
-    st.tuples,
-]
+)
 
 containers_all = containers_hashable + containers_non_hashable
 
+elements_non_specific = (
+    st.binary,
+    st.booleans,
+    st.characters,
+    st.complex_numbers,
+    st.dates,
+    st.datetimes,
+    st.floats,
+    st.fractions,
+    st.integers,
+    st.none,
+    st.randoms,
+    st.text,
+    st.times,
+    st.uuids,
+)
 
-@pytest.mark.parametrize('container_type', containers_non_hashable)
-@pytest.mark.parametrize('elements, elements_kwargs, elements_filter', [
-    (st.binary, dict(), lambda x: True),
-    (st.booleans, dict(), lambda x: True),
-    (st.characters, dict(), lambda x: True),
-    (st.complex_numbers, dict(), lambda x: True),
-    (st.dates, dict(), lambda x: True),
-    (st.datetimes, dict(), lambda x: True),
-    (st.decimals, dict(), lambda x: True),
-    (st.floats, dict(), lambda x: True),
-    (st.fractions, dict(), lambda x: True),
-    (st.integers, dict(), lambda x: True),
-    (st.text, dict(), lambda x: True),
-    (
-        st.timedeltas,
-        dict(min_value=Timedelta.min.to_pytimedelta(), max_value=Timedelta.max.to_pytimedelta()),
-        lambda x: True,
-    ),
-    (st.times, dict(), lambda x: True),
+elements_specific = (
+    (st.timedeltas, dict(min_value=Timedelta.min.to_pytimedelta(), max_value=Timedelta.max.to_pytimedelta())),
+)
+
+
+@pytest.mark.parametrize('container_type', containers_all)
+@pytest.mark.parametrize('elements, kwargs_elements', [
+    *((item, dict()) for item in elements_non_specific),
+    *elements_specific,
 ])
 @given(data=st.data())
-def test_nodes_init_index_multiple_container_non_hashable_and_data_type(
+def test_nodes_init_index_single_elements_type(
         container_type,
         elements,
-        elements_kwargs,
-        elements_filter,
+        kwargs_elements,
         data,
 ):
-    nodes = tahini.core.Nodes(index=data.draw(container_type(elements(**elements_kwargs).filter(elements_filter))))
+    nodes = tahini.core.Nodes(index=data.draw(container_type(elements=elements(**kwargs_elements))))
     assert isinstance(nodes, tahini.core.Nodes)
 
 
-@pytest.mark.parametrize('container_type', containers_hashable)
-@pytest.mark.parametrize('elements, elements_kwargs, elements_filter', [
-    (st.binary, dict(), lambda x: True),
-    (st.booleans, dict(), lambda x: True),
-    (st.characters, dict(), lambda x: True),
-    (st.complex_numbers, dict(), lambda x: True),
-    (st.dates, dict(), lambda x: True),
-    (st.datetimes, dict(), lambda x: True),
-    (st.decimals, dict(), lambda x: not Decimal.is_snan(x)),
-    (st.floats, dict(), lambda x: True),
-    (st.fractions, dict(), lambda x: True),
-    (st.integers, dict(), lambda x: True),
-    (st.text, dict(), lambda x: True),
-    (
-        st.timedeltas,
-        dict(min_value=Timedelta.min.to_pytimedelta(), max_value=Timedelta.max.to_pytimedelta()),
-        lambda x: True,
-    ),
-    (st.times, dict(), lambda x: True),
+@pytest.mark.parametrize('container_type, elements, kwargs_elements, filter_elements', [
+    *((container, st.decimals, dict(), lambda x: True) for container in containers_non_hashable),
+    *((container, st.decimals, dict(), lambda x: not Decimal.is_snan(x)) for container in containers_hashable),
 ])
 @given(data=st.data())
-def test_nodes_init_index_multiple_container_hashable_and_data_type(
+def test_nodes_init_index_single_elements_type_specific(
         container_type,
         elements,
-        elements_kwargs,
-        elements_filter,
+        kwargs_elements,
+        filter_elements,
         data,
 ):
-    nodes = tahini.core.Nodes(index=data.draw(container_type(elements(**elements_kwargs).filter(elements_filter))))
+    nodes = tahini.core.Nodes(
+        index=data.draw(container_type(elements=elements(**kwargs_elements).filter(filter_elements)))
+    )
     assert isinstance(nodes, tahini.core.Nodes)
 
 
 @pytest.mark.xfail
 @pytest.mark.parametrize('container_type, elements', [
     # pandas.Timedeltas max and min do not match python standard library datetime.timedelta max and min
-    *[(container, st.timedeltas) for container in containers_all],
+    *((container, st.timedeltas) for container in containers_all),
     # error with decimals with sets and frozensets
-    *[
+    *(
         (st.sets, st.decimals),
         (st.frozensets, st.decimals),
-    ],
+    ),
 ])
 @given(data=st.data())
-def test_nodes_init_index_multiple_xfail(container_type, elements, data):
-    nodes = tahini.core.Nodes(index=data.draw(container_type(elements())))
+def test_nodes_init_index_single_elements_type_xfail(container_type, elements, data):
+    nodes = tahini.core.Nodes(index=data.draw(container_type(elements=elements())))
+    assert isinstance(nodes, tahini.core.Nodes)
+
+
+@pytest.fixture()
+def list_elements():
+    output_value = (
+        *(elements() for elements in elements_non_specific),
+        *(item[0](**item[1]) for item in elements_specific),
+    )
+    return output_value
+
+
+@pytest.mark.parametrize('container_type, list_elements_specific', [
+    *((container, (st.decimals(),)) for container in containers_non_hashable),
+    *((container, (st.decimals().filter(lambda x: not Decimal.is_snan(x)),)) for container in containers_non_hashable),
+])
+@given(data=st.data())
+def test_nodes_init_index_multiple_elements_type(container_type, list_elements_specific, list_elements, data):
+    nodes = tahini.core.Nodes(
+        index=data.draw(container_type(elements=st.one_of(*list_elements, *list_elements_specific)))
+    )
     assert isinstance(nodes, tahini.core.Nodes)
