@@ -4,13 +4,13 @@ import pytest
 from hypothesis import given
 import hypothesis.strategies as st
 from hypothesis.extra.pandas import indexes, columns, data_frames
-from pandas import Timedelta
+from pandas import Timedelta, Index
 
 import tahini.core
 
 
 @pytest.mark.parametrize('args, kwargs, error_type, error_message', [
-    ([], dict(), ValueError, 'Need to provide at least "data" or "index" or "size" for initializing "Nodes".'),
+    # ([], dict(), ValueError, 'Need to provide at least "data" or "index" or "size" for initializing "Nodes".'),
     ([], dict(size=0.5), TypeError, "Wrong type <class 'float'> for value 0.5"),
 ])
 def test_nodes_init(args, kwargs, error_type, error_message):
@@ -20,6 +20,7 @@ def test_nodes_init(args, kwargs, error_type, error_message):
 
 
 @pytest.mark.parametrize('args, kwargs', [
+    ([], dict()),
     ([[]], dict()),
     ([None, []], dict()),
     ([None, None, 1], dict()),
@@ -145,3 +146,11 @@ def test_nodes_init_index_multiple_elements_type(container_type, list_elements_s
 def test_nodes_init_data(data):
     nodes = tahini.core.Nodes(data=data)
     assert isinstance(nodes, tahini.core.Nodes)
+
+
+@pytest.mark.parametrize('nodes, expected', [
+    (tahini.core.Nodes(index=[]), f'Nodes(index={Index([])})'),
+])
+def test_nodes_repr(nodes, expected):
+    actual = repr(nodes)
+    assert actual == expected

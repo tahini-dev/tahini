@@ -14,11 +14,12 @@ class Nodes:
     ):
 
         if data is None and index is None and size is None:
-            raise ValueError(
-                f'Need to provide at least "data" or "index" or "size" for initializing "{self.__class__.__name__}".'
-            )
+            index = []
 
         if size is not None:
             index = RangeIndex(stop=size)
 
         self.data = DataFrame(data=data, index=index, **kwargs)
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}(index={self.data.index})'
