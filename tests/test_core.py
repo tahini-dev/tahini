@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import pytest
 from hypothesis import given
 import hypothesis.strategies as st
@@ -49,56 +51,66 @@ containers_all = containers_hashable + containers_non_hashable
 
 
 @pytest.mark.parametrize('container_type', containers_non_hashable)
-@pytest.mark.parametrize('elements, elements_kwargs', [
-    (st.binary, dict()),
-    (st.booleans, dict()),
-    (st.characters, dict()),
-    (st.complex_numbers, dict()),
-    (st.dates, dict()),
-    (st.datetimes, dict()),
-    (st.decimals, dict()),
-    (st.floats, dict()),
-    (st.fractions, dict()),
-    (st.integers, dict()),
-    (st.text, dict()),
-    (st.timedeltas, dict(min_value=Timedelta.min.to_pytimedelta(), max_value=Timedelta.max.to_pytimedelta())),
-    (st.times, dict()),
+@pytest.mark.parametrize('elements, elements_kwargs, elements_filter', [
+    (st.binary, dict(), lambda x: True),
+    (st.booleans, dict(), lambda x: True),
+    (st.characters, dict(), lambda x: True),
+    (st.complex_numbers, dict(), lambda x: True),
+    (st.dates, dict(), lambda x: True),
+    (st.datetimes, dict(), lambda x: True),
+    (st.decimals, dict(), lambda x: True),
+    (st.floats, dict(), lambda x: True),
+    (st.fractions, dict(), lambda x: True),
+    (st.integers, dict(), lambda x: True),
+    (st.text, dict(), lambda x: True),
+    (
+        st.timedeltas,
+        dict(min_value=Timedelta.min.to_pytimedelta(), max_value=Timedelta.max.to_pytimedelta()),
+        lambda x: True,
+    ),
+    (st.times, dict(), lambda x: True),
 ])
 @given(data=st.data())
 def test_nodes_init_index_multiple_container_non_hashable_and_data_type(
         container_type,
         elements,
         elements_kwargs,
+        elements_filter,
         data,
 ):
-    nodes = tahini.core.Nodes(index=data.draw(container_type(elements(**elements_kwargs))))
+    nodes = tahini.core.Nodes(index=data.draw(container_type(elements(**elements_kwargs).filter(elements_filter))))
     assert isinstance(nodes, tahini.core.Nodes)
 
 
 @pytest.mark.parametrize('container_type', containers_hashable)
-@pytest.mark.parametrize('elements, elements_kwargs', [
-    (st.binary, dict()),
-    (st.booleans, dict()),
-    (st.characters, dict()),
-    (st.complex_numbers, dict()),
-    (st.dates, dict()),
-    (st.datetimes, dict()),
-    (st.decimals, dict(allow_nan=False)),
-    (st.floats, dict()),
-    (st.fractions, dict()),
-    (st.integers, dict()),
-    (st.text, dict()),
-    (st.timedeltas, dict(min_value=Timedelta.min.to_pytimedelta(), max_value=Timedelta.max.to_pytimedelta())),
-    (st.times, dict()),
+@pytest.mark.parametrize('elements, elements_kwargs, elements_filter', [
+    (st.binary, dict(), lambda x: True),
+    (st.booleans, dict(), lambda x: True),
+    (st.characters, dict(), lambda x: True),
+    (st.complex_numbers, dict(), lambda x: True),
+    (st.dates, dict(), lambda x: True),
+    (st.datetimes, dict(), lambda x: True),
+    (st.decimals, dict(), lambda x: not Decimal.is_snan(x)),
+    (st.floats, dict(), lambda x: True),
+    (st.fractions, dict(), lambda x: True),
+    (st.integers, dict(), lambda x: True),
+    (st.text, dict(), lambda x: True),
+    (
+        st.timedeltas,
+        dict(min_value=Timedelta.min.to_pytimedelta(), max_value=Timedelta.max.to_pytimedelta()),
+        lambda x: True,
+    ),
+    (st.times, dict(), lambda x: True),
 ])
 @given(data=st.data())
 def test_nodes_init_index_multiple_container_hashable_and_data_type(
         container_type,
         elements,
         elements_kwargs,
+        elements_filter,
         data,
 ):
-    nodes = tahini.core.Nodes(index=data.draw(container_type(elements(**elements_kwargs))))
+    nodes = tahini.core.Nodes(index=data.draw(container_type(elements(**elements_kwargs).filter(elements_filter))))
     assert isinstance(nodes, tahini.core.Nodes)
 
 
