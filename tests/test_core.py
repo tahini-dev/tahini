@@ -120,7 +120,7 @@ def test_nodes_init_index_single_elements_type_xfail(container_type, elements, d
     assert isinstance(nodes, tahini.core.Nodes)
 
 
-@pytest.fixture()
+@pytest.fixture(scope='module')
 def list_elements():
     output_value = (
         *(elements() for elements in elements_non_specific),
