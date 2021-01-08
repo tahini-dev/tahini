@@ -12,6 +12,6 @@ Package for graph theory
 
 - Learn
 - Have fun
-- Write python implementation (classes) for graph theory
+- Write python implementation (classes) for graph theory, will use pandas for this is a start to bank it easier
+- Write graph theory algorithms
 - Update to cython implementation for graph theory for speed
-- Write graph theory algorithm
