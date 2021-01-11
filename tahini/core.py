@@ -1,91 +1,67 @@
 from __future__ import annotations
-from collections.abc import Collection, Iterable
-from typing import Optional, Union, Dict, Any, Callable
+from typing import Optional
 
-from pandas import DataFrame, Index, RangeIndex
+from .base import ContainerDataIndexed, TypeIndexInput, TypeDataInput
 
 
-class Nodes(Collection):
+class Nodes(ContainerDataIndexed):
 
     def __init__(
             self,
-            nodes: Optional[TypeNodesInput] = None,
-            data: Optional[TypeNodesDataInput] = None,
+            index: Optional[TypeIndexInput] = None,
+            data: Optional[TypeDataInput] = None,
             size: Optional[int] = None,
             **kwargs,
     ):
 
-        if (nodes is not None and size is not None) or (data is not None and size is not None):
+        if (index is not None and size is not None) or (data is not None and size is not None):
             raise ValueError(
                 f"Inputs for '{self.__class__.__name__}' can either be empty or contain "
-                f"'nodes', "
+                f"'index', "
                 f"'data', "
-                f"'nodes' and 'data' "
+                f"'index' and 'data' "
                 f"or 'size'"
             )
 
-        if isinstance(nodes, Nodes):
-            data = nodes.data
-            nodes = None
-
         if size is not None:
-            nodes = RangeIndex(stop=size)
+            index = range(size)
 
-        if isinstance(data, DataFrame) and nodes is not None:
-            raise ValueError(f"'nodes' has to be None if 'data' is a DataFrame for '{self.__class__.__name__}'")
+        super().__init__(index=index, data=data, **kwargs)
 
-        self.data = DataFrame(data=data, index=nodes, **kwargs)
-
-    def __repr__(self):
-        return f'{self.__class__.__name__}(index={self.data.index})'
-
-    def __iter__(self):
-        return iter(self.data.index)
-
-    def __contains__(
-            self,
-            item: Any,
-    ):
-        return item in self.data.index
-
-    def __len__(self):
-        return len(self.data.index)
-
-    def __eq__(
-            self,
-            other: Any,
-    ):
-        return isinstance(other, Nodes) and len(self.data.index.symmetric_difference(other.data.index)) == 0
-
-    def update(
-            self,
-            nodes: Optional[TypeNodesInput] = None,
-            data: Optional[TypeNodesDataInput] = None,
-            func: Optional[Callable] = None,
-            **kwargs,
-    ) -> Nodes:
-        other = Nodes(nodes=nodes, data=data)
-        if func is None:
-            func = _update_func
-        self.data = self.data.combine(other.data, func, **kwargs)
-        return self
-
-    def drop(
-            self,
-            nodes: Optional[TypeNodesInput] = None,
-            **kwargs,
-    ) -> Nodes:
-        self.data = self.data.drop(index=nodes, **kwargs)
-        return self
+    @staticmethod
+    def _name_index():
+        return 'node'
 
 
-TypeNodesInput = Union[Nodes, Index, Iterable]
-TypeNodesDataInput = Union[DataFrame, Dict, Iterable]
 
 
-def _update_func(s1, s2):
-    return s2.fillna(s1)
-
+# class Edges:
+#
+#     def __init__(
+#             self,
+#             edges: Optional[TypeEdgeInput] = None,
+#             data: Optional[TypeEdgesDataInput] = None,
+#             **kwargs,
+#     ):
+#
+#         if isinstance(data, DataFrame) and edges is not None:
+#             raise ValueError(f"'edges' has to be None if 'data' is a DataFrame for '{self.__class__.__name__}'")
+#
+#         if isinstance(edges, Edges):
+#             data = edges.data
+#             edges = None
+#
+#         if isinstance(data, DataFrame) and not data.empty:
+#             edges = data.index
+#
+#         if edges is not None:
+#             edges = MultiIndex.from_tuples(edges)
+#
+#         self.data = DataFrame(data=data, index=edges, **kwargs)
+#
+#
+# TypeEdgeInput = Union[Edges, MultiIndex, Iterable]
+# TypeEdgesDataInput = Union[DataFrame, Dict, Iterable]
 
 # class Graph:
 #
