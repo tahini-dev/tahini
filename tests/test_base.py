@@ -367,25 +367,9 @@ def test_container_data_indexed_update(container, args, kwargs, expected):
     pd.testing.assert_frame_equal(container_updated.data, expected)
 
 
-@pytest.mark.parametrize('container, args, kwargs, type_error, message_error', [
-    # cannot pass empty arguments
-    (
-        container_data_indexed_empty(),
-        [],
-        dict(),
-        ValueError,
-        "Need to specify at least one of 'labels', 'index' or 'columns'",
-    ),
-    # raises error if the node is not found, this can be suppressed by using errors='ignore'
-    (container_data_indexed_empty(), [], dict(index=[1]), KeyError, "[1] not found in axis"),
-])
-def test_container_data_indexed_drop_error(container, args, kwargs, type_error, message_error):
-    with pytest.raises(type_error) as e:
-        container.drop(*args, **kwargs)
-    assert e.value.args[0] == message_error
-
-
 @pytest.mark.parametrize('container, args, kwargs, expected', [
+    # empty
+    (container_data_indexed_empty(), [], dict(), get_data_frame()),
     # empty list
     (container_data_indexed_empty(), [], dict(index=[]), get_data_frame()),
     # basic example

@@ -96,6 +96,8 @@ class ContainerDataIndexed(Collection):
             index: Optional[TypeIndexInput] = None,
             **kwargs,
     ) -> T:
+        if index is None:
+            index = []
         self.data = self.data.drop(index=index, **kwargs)
         return self
 
