@@ -199,9 +199,9 @@ def container_data_indexed_range(size=10):
 
 
 class ChildContainerDataIndexed(tahini.base.ContainerDataIndexed):
-    @staticmethod
-    def _name_index():
-        return 'child'
+
+    def _validate_data(self):
+        self.data = self.data.rename_axis(index='child')
 
 
 @pytest.mark.parametrize('container, expected', [
@@ -420,3 +420,102 @@ def test_container_data_indexed_drop(container, args, kwargs, expected):
     assert isinstance(container_after_dropped, container.__class__)
     pd.testing.assert_frame_equal(container_after_dropped.data, expected)
 
+
+@pytest.mark.parametrize('args, kwargs, type_error, message_error', [
+    # cannot pass index if data is data_frame
+    (
+        [],
+        dict(index=[], data=pd.DataFrame()),
+        ValueError,
+        (
+            "If input 'data' is 'pandas.DataFrame' then input 'index' has to be 'None' for initializing "
+            "'ContainerDataIndexedMulti'"
+        ),
+    ),
+    # cannot pass a single dimensional list
+    ([], dict(index=[0, 1]), TypeError, "object of type 'int' has no len()"),
+    # cannot pass a list with any item that is non dimensional
+    ([], dict(index=['ab', 1]), TypeError, "object of type 'int' has no len()"),
+    # cannot pass a list with more items of length more than the names
+    ([], dict(index=[[0, 1, 2]]), ValueError, "Length of names must match number of levels in MultiIndex."),
+    # cannot pass a list with less items of length more than the names
+    ([], dict(index=[[0]]), ValueError, "Length of names must match number of levels in MultiIndex."),
+])
+def test_container_data_indexed_multi_init_error(args, kwargs, type_error, message_error):
+    with pytest.raises(type_error) as e:
+        tahini.base.ContainerDataIndexedMulti(*args, **kwargs)
+    assert e.value.args[0] == message_error
+
+
+@pytest.mark.parametrize('args, kwargs, expected', [
+    # empty
+    ([], dict(), pd.DataFrame(index=pd.MultiIndex(levels=[[], []], codes=[[], []]))),
+    # index list of tuples
+    (
+        [],
+        dict(index=[(0, 1), (1, 2)]),
+        pd.DataFrame(index=pd.MultiIndex.from_tuples([(0, 1), (1, 2)])),
+    ),
+    # index list of lists
+    (
+        [],
+        dict(index=[[0, 1], [1, 2]]),
+        pd.DataFrame(index=pd.MultiIndex.from_tuples([(0, 1), (1, 2)])),
+    ),
+    # index multi_index
+    (
+        [],
+        dict(index=pd.MultiIndex.from_tuples([(0, 1), (1, 2)], name=['test_1', 'test_2'])),
+        pd.DataFrame(index=pd.MultiIndex.from_tuples([(0, 1), (1, 2)])),
+    ),
+    # index and data dict
+    (
+        [],
+        dict(index=[[0, 1], [1, 2]], data=dict(value=['a', 'b'])),
+        pd.DataFrame(
+            data=dict(value=['a', 'b']),
+            index=pd.MultiIndex.from_tuples([(0, 1), (1, 2)]),
+        ),
+    ),
+    # data_frame
+    (
+        [],
+        dict(data=pd.DataFrame(data=dict(name=['a', 'b']), index=[(0, 1), (1, 2)])),
+        pd.DataFrame(
+            data=dict(name=['a', 'b']),
+            index=pd.MultiIndex.from_tuples([(0, 1), (1, 2)]),
+        ),
+    ),
+    # idemponent index empty
+    (
+        [],
+        dict(index=tahini.base.ContainerDataIndexedMulti()),
+        pd.DataFrame(index=pd.MultiIndex(levels=[[], []], codes=[[], []])),
+    ),
+    # idemponent index non empty
+    (
+        [],
+        dict(index=tahini.base.ContainerDataIndexedMulti(index=[(0, 1), (1, 2)])),
+        pd.DataFrame(index=pd.MultiIndex.from_tuples([(0, 1), (1, 2)])),
+    ),
+    # idemponent index and data non empty
+    (
+        [],
+        dict(index=tahini.base.ContainerDataIndexedMulti(index=[(0, 1), (1, 2)], data=dict(name=['a', 'b']))),
+        pd.DataFrame(
+            data=dict(name=['a', 'b']),
+            index=pd.MultiIndex.from_tuples([(0, 1), (1, 2)]),
+        ),
+    ),
+    # index mismatch length
+    (
+        [],
+        dict(index=tahini.base.ContainerDataIndexedMulti(index=[[0], [1, 2]])),
+        pd.DataFrame(
+            index=pd.MultiIndex.from_tuples([(0, nan), (1, 2)]),
+        ),
+    ),
+])
+def test_container_data_indexed_multi_init(args, kwargs, expected):
+    container = tahini.base.ContainerDataIndexedMulti(*args, **kwargs)
+    pd.testing.assert_frame_equal(container.data, expected)

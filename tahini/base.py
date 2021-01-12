@@ -1,12 +1,13 @@
 from __future__ import annotations
-from collections.abc import Collection, Iterable
-from typing import Optional, Union, Dict, Any, Callable, TypeVar
+from collections.abc import Collection, Iterable, Sequence
+from typing import Optional, Union, Dict, Any, Callable, TypeVar, Iterable as TypeIterable
 
 from pandas import DataFrame, Series, Index, MultiIndex
 
 # https://www.python.org/dev/peps/pep-0484/#annotating-instance-and-class-methods
 T = TypeVar('T', bound='ContainerDataIndexed')
 TypeIndexInput = Union[T, Index, Iterable]
+TypeIndexMultiInput = Union[T, MultiIndex, TypeIterable[Sequence]]
 TypeDataInput = Union[DataFrame, Dict, Iterable]
 
 
@@ -36,19 +37,21 @@ class ContainerDataIndexed(Collection):
 
         self._validate_data()
 
-    @staticmethod
-    def _create_index(index):
+    def _create_index(
+            self,
+            index: TypeIndexInput,
+    ) -> Index:
         return Index(index)
 
+    @staticmethod
+    def _names_index() -> Optional[Union[str, Sequence[str]]]:
+        return None
+
     def _validate_data(self):
-        self.data = self.data.rename_axis(index=self._name_index())
+        self.data = self.data.rename_axis(index=self._names_index())
 
     def __repr__(self):
         return f'{self.__class__.__name__}(index={self.data.index})'
-
-    @staticmethod
-    def _name_index():
-        return None
 
     def __iter__(self):
         return iter(self.data.index)
@@ -95,3 +98,35 @@ class ContainerDataIndexed(Collection):
     ) -> T:
         self.data = self.data.drop(index=index, **kwargs)
         return self
+
+
+class ContainerDataIndexedMulti(ContainerDataIndexed):
+
+    def __init__(
+            self,
+            index: Optional[TypeIndexMultiInput] = None,
+            **kwargs,
+    ):
+        super().__init__(index=index, **kwargs)
+
+    @staticmethod
+    def _names_index():
+        return [None, None]
+
+    def _create_index(
+            self,
+            index: TypeIndexMultiInput,
+    ) -> MultiIndex:
+        names_index = self._names_index()
+        num_levels = len(names_index)
+        if len(index) == 0:
+            index = MultiIndex(levels=[[]] * num_levels, codes=[[]] * num_levels)
+        else:
+            index = MultiIndex.from_tuples(index)
+        index = index.rename(names_index)
+        return index
+
+    def _validate_data(self):
+        if not isinstance(self.data.index, MultiIndex):
+            self.data = self.data.set_index(self._create_index(self.data.index))
+        self.data = self.data.rename_axis(index=self._names_index())
