@@ -17,9 +17,9 @@ jobs:
     - name: Run sphinx-build
       run: |
         cd docs
-        sphinx-build -b html . _build
+        make html
     - name: Create artifact of the html output
       uses: actions/upload-artifact@v2
       with:
         name: DocumentationHTML
-        path: docs/_build/
+        path: docs/build/
