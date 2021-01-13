@@ -1,5 +1,5 @@
 .. tahini documentation master file, created by
-   sphinx-quickstart on Wed Jan 13 08:58:54 2021.
+   sphinx-quickstart on Wed Jan 13 12:45:53 2021.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
