@@ -5,9 +5,9 @@ from typing import Optional, Union, Dict, Any, Callable, TypeVar, Iterable as Ty
 from pandas import DataFrame, Series, Index, MultiIndex
 
 # https://www.python.org/dev/peps/pep-0484/#annotating-instance-and-class-methods
-T = TypeVar('T', bound='ContainerDataIndexed')
-TypeIndexInput = Union[T, Index, Iterable]
-TypeIndexMultiInput = Union[T, MultiIndex, TypeIterable[Sequence]]
+TypeContainerDataIndexed = TypeVar('TypeContainerDataIndexed', bound='ContainerDataIndexed')
+TypeIndexInput = Union[TypeContainerDataIndexed, Index, Iterable]
+TypeIndexMultiInput = Union[TypeContainerDataIndexed, MultiIndex, TypeIterable[Sequence]]
 TypeDataInput = Union[DataFrame, Dict, Iterable]
 
 
@@ -77,7 +77,7 @@ class ContainerDataIndexed(Collection):
             data: Optional[TypeDataInput] = None,
             func: Optional[Callable] = None,
             **kwargs,
-    ) -> T:
+    ) -> TypeContainerDataIndexed:
         other = self.__class__(index=index, data=data)
         if func is None:
             func = self._update_func
@@ -95,7 +95,7 @@ class ContainerDataIndexed(Collection):
             self,
             index: Optional[TypeIndexInput] = None,
             **kwargs,
-    ) -> T:
+    ) -> TypeContainerDataIndexed:
         if index is None:
             index = []
         self.data = self.data.drop(index=index, **kwargs)
