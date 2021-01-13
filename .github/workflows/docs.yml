@@ -10,11 +10,16 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - uses: ammaraskar/sphinx-action@master
-      with:
-        docs-folder: "docs/"
-    - uses: actions/upload-artifact@v1
+    - uses: actions/checkout@v2
+    - name: Install sphinx dependencies
+      run: |
+        pip install -r requirements/docs.txt
+    - name: Run sphinx-build
+      run: |
+        cd docs
+        sphinx-build -b html . _build
+    - name: Create artifact of the html output
+      uses: actions/upload-artifact@v2
       with:
         name: DocumentationHTML
-        path: docs/_build/html/
+        path: docs/_build/
