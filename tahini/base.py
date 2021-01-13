@@ -9,6 +9,7 @@ TypeContainerDataIndexed = TypeVar('TypeContainerDataIndexed', bound='ContainerD
 TypeIndexInput = Union[TypeContainerDataIndexed, Index, Iterable]
 TypeIndexMultiInput = Union[TypeContainerDataIndexed, MultiIndex, TypeIterable[Sequence]]
 TypeDataInput = Union[DataFrame, Dict, Iterable]
+TypeMapper = Union[Callable, Dict, Series]
 
 
 class ContainerDataIndexed(Collection):
@@ -101,6 +102,15 @@ class ContainerDataIndexed(Collection):
         self.data = self.data.drop(index=index, **kwargs)
         return self
 
+    def map(
+            self,
+            mapper: Optional[TypeMapper] = None,
+            **kwargs,
+    ) -> TypeContainerDataIndexed:
+        if mapper is not None:
+            self.data.index = self.data.index.map(mapper=mapper, **kwargs)
+        return self
+
 
 class ContainerDataIndexedMulti(ContainerDataIndexed):
 
@@ -132,3 +142,13 @@ class ContainerDataIndexedMulti(ContainerDataIndexed):
         if not isinstance(self.data.index, MultiIndex):
             self.data = self.data.set_index(self._create_index(self.data.index))
         self.data = self.data.rename_axis(index=self._names_index())
+
+    def map(
+            self,
+            mapper: Optional[TypeMapper] = None,
+            **kwargs,
+    ) -> TypeContainerDataIndexed:
+        if mapper is not None:
+            index = [self.data.index.levels[level].map(mapper, **kwargs) for level in range(self.data.index.nlevels)]
+            self.data.index = self._create_index(index=MultiIndex.from_arrays(index))
+        return self

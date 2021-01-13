@@ -405,6 +405,26 @@ def test_container_data_indexed_drop(container, args, kwargs, expected):
     pd.testing.assert_frame_equal(container_after_dropped.data, expected)
 
 
+@pytest.mark.parametrize('container, args, kwargs, expected', [
+    # container empty, mapper empty
+    (container_data_indexed_empty(), [], dict(), get_data_frame()),
+    # container empty, mapper empty dict
+    (container_data_indexed_empty(), [], dict(mapper=dict()), get_data_frame()),
+    # container empty, mapper non empty
+    (container_data_indexed_empty(), [], dict(mapper={0: 'a'}), get_data_frame()),
+    # container non empty, mapper non empty
+    (container_data_indexed_range(1), [], dict(mapper={0: 'a'}), get_data_frame(index=['a'])),
+    # container non empty, mapper not containing the index element
+    (container_data_indexed_range(1), [], dict(mapper={1: 'a'}), get_data_frame(index=[nan])),
+    # container non empty, mapper non empty
+    (container_data_indexed_range(2), [], dict(mapper={0: 'a', 1: 2}), get_data_frame(index=['a', 2])),
+])
+def test_container_data_indexed_map(container, args, kwargs, expected):
+    container_after_mapped = container.map(*args, **kwargs)
+    assert isinstance(container_after_mapped, container.__class__)
+    pd.testing.assert_frame_equal(container_after_mapped.data, expected)
+
+
 @pytest.mark.parametrize('args, kwargs, type_error, message_error', [
     # cannot pass index if data is data_frame
     (
@@ -431,75 +451,95 @@ def test_container_data_indexed_multi_init_error(args, kwargs, type_error, messa
     assert e.value.args[0] == message_error
 
 
+def get_data_index_multi(*args, index=None, **kwargs):
+    if index is None:
+        index = pd.MultiIndex(levels=[[], []], codes=[[], []])
+    else:
+        index = pd.MultiIndex.from_tuples(index)
+    return pd.DataFrame(*args, index=index, **kwargs)
+
+
 @pytest.mark.parametrize('args, kwargs, expected', [
     # empty
-    ([], dict(), pd.DataFrame(index=pd.MultiIndex(levels=[[], []], codes=[[], []]))),
+    ([], dict(), get_data_index_multi()),
     # index list of tuples
-    (
-        [],
-        dict(index=[(0, 1), (1, 2)]),
-        pd.DataFrame(index=pd.MultiIndex.from_tuples([(0, 1), (1, 2)])),
-    ),
+    ([], dict(index=[(0, 1), (1, 2)]), get_data_index_multi(index=[(0, 1), (1, 2)])),
     # index list of lists
-    (
-        [],
-        dict(index=[[0, 1], [1, 2]]),
-        pd.DataFrame(index=pd.MultiIndex.from_tuples([(0, 1), (1, 2)])),
-    ),
+    ([], dict(index=[[0, 1], [1, 2]]), get_data_index_multi(index=[(0, 1), (1, 2)])),
     # index multi_index
     (
         [],
         dict(index=pd.MultiIndex.from_tuples([(0, 1), (1, 2)], name=['test_1', 'test_2'])),
-        pd.DataFrame(index=pd.MultiIndex.from_tuples([(0, 1), (1, 2)])),
+        get_data_index_multi(index=[(0, 1), (1, 2)]),
     ),
     # index and data dict
     (
         [],
         dict(index=[[0, 1], [1, 2]], data=dict(value=['a', 'b'])),
-        pd.DataFrame(
-            data=dict(value=['a', 'b']),
-            index=pd.MultiIndex.from_tuples([(0, 1), (1, 2)]),
-        ),
+        get_data_index_multi(data=dict(value=['a', 'b']), index=[(0, 1), (1, 2)]),
     ),
     # data_frame
     (
         [],
-        dict(data=pd.DataFrame(data=dict(name=['a', 'b']), index=[(0, 1), (1, 2)])),
-        pd.DataFrame(
-            data=dict(name=['a', 'b']),
-            index=pd.MultiIndex.from_tuples([(0, 1), (1, 2)]),
-        ),
+        dict(data=pd.DataFrame(data=dict(value=['a', 'b']), index=[(0, 1), (1, 2)])),
+        get_data_index_multi(data=dict(value=['a', 'b']), index=[(0, 1), (1, 2)]),
     ),
     # idemponent index empty
-    (
-        [],
-        dict(index=tahini.base.ContainerDataIndexedMulti()),
-        pd.DataFrame(index=pd.MultiIndex(levels=[[], []], codes=[[], []])),
-    ),
+    ([], dict(index=tahini.base.ContainerDataIndexedMulti()), get_data_index_multi()),
     # idemponent index non empty
     (
         [],
         dict(index=tahini.base.ContainerDataIndexedMulti(index=[(0, 1), (1, 2)])),
-        pd.DataFrame(index=pd.MultiIndex.from_tuples([(0, 1), (1, 2)])),
+        get_data_index_multi(index=[(0, 1), (1, 2)]),
     ),
     # idemponent index and data non empty
     (
         [],
-        dict(index=tahini.base.ContainerDataIndexedMulti(index=[(0, 1), (1, 2)], data=dict(name=['a', 'b']))),
-        pd.DataFrame(
-            data=dict(name=['a', 'b']),
-            index=pd.MultiIndex.from_tuples([(0, 1), (1, 2)]),
-        ),
+        dict(index=tahini.base.ContainerDataIndexedMulti(index=[(0, 1), (1, 2)], data=dict(value=['a', 'b']))),
+        get_data_index_multi(data=dict(value=['a', 'b']), index=[(0, 1), (1, 2)]),
     ),
     # index mismatch length
     (
         [],
         dict(index=tahini.base.ContainerDataIndexedMulti(index=[[0], [1, 2]])),
-        pd.DataFrame(
-            index=pd.MultiIndex.from_tuples([(0, nan), (1, 2)]),
-        ),
+        get_data_index_multi(index=[(0, nan), (1, 2)]),
     ),
 ])
 def test_container_data_indexed_multi_init(args, kwargs, expected):
     container = tahini.base.ContainerDataIndexedMulti(*args, **kwargs)
     pd.testing.assert_frame_equal(container.data, expected)
+
+
+@pytest.mark.parametrize('container, args, kwargs, expected', [
+    # container empty, mapper empty
+    (tahini.base.ContainerDataIndexedMulti(), [], dict(), get_data_index_multi()),
+    # container empty, mapper empty dict
+    (tahini.base.ContainerDataIndexedMulti(), [], dict(mapper=dict()), get_data_index_multi()),
+    # container empty, mapper non empty
+    (tahini.base.ContainerDataIndexedMulti(), [], dict(mapper={0: 'a'}), get_data_index_multi()),
+    # container non empty, mapper not containing one of the index element
+    (
+        tahini.core.ContainerDataIndexedMulti(index=[(0, 1)]),
+        [],
+        dict(mapper={0: 'a'}),
+        get_data_index_multi(index=[('a', nan)]),
+    ),
+    # container non empty, mapper non empty
+    (
+        tahini.core.ContainerDataIndexedMulti(index=[(0, 1)]),
+        [],
+        dict(mapper={0: 'a', 1: 'b'}),
+        get_data_index_multi(index=[('a', 'b')]),
+    ),
+    # container non empty, mapper not containing the index element
+    (
+        tahini.core.ContainerDataIndexedMulti(index=[(0, 1)]),
+        [],
+        dict(mapper={2: 'a'}),
+        get_data_index_multi(index=[(nan, nan)]),
+    ),
+])
+def test_container_data_indexed_multi_map(container, args, kwargs, expected):
+    container_after_mapped = container.map(*args, **kwargs)
+    assert isinstance(container_after_mapped, container.__class__)
+    pd.testing.assert_frame_equal(container_after_mapped.data, expected)

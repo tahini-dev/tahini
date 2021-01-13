@@ -2,7 +2,14 @@ from __future__ import annotations
 from typing import Optional, Union, TypeVar, NoReturn
 from collections.abc import Sequence
 
-from .base import ContainerDataIndexed, ContainerDataIndexedMulti, TypeIndexMultiInput, TypeIndexInput, TypeDataInput
+from .base import (
+    ContainerDataIndexed,
+    ContainerDataIndexedMulti,
+    TypeIndexMultiInput,
+    TypeIndexInput,
+    TypeDataInput,
+    TypeMapper,
+)
 
 
 class Nodes(ContainerDataIndexed):
@@ -175,3 +182,12 @@ class Graph:
 
     def __repr__(self):
         return f'{self.__class__.__name__}(nodes={self.nodes}, edges={self.edges})'
+
+    def map_nodes(
+            self,
+            mapper: Optional[TypeMapper] = None,
+            **kwargs
+    ) -> TypeGraph:
+        self._nodes = self._nodes.map(mapper=mapper, **kwargs)
+        self._edges = self._edges.map(mapper=mapper, **kwargs)
+        return self

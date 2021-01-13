@@ -10,3 +10,7 @@ from . import (
 from .core import (
     Graph,
 )
+
+from .factory import (
+    get_path,
+)
