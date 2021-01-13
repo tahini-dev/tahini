@@ -408,3 +408,12 @@ def test_graph_drop(graph, args, kwargs, data_nodes_expected, data_edges_expecte
 def test_graph_degree(graph, expected):
     degree = graph.degree
     assert degree == expected
+
+
+@pytest.mark.parametrize('graph, expected', [
+    # empty
+    (tahini.core.Graph(), f'Graph(nodes={tahini.core.Nodes()}, edges={tahini.core.Edges()})'),
+])
+def test_graph_repr(graph, expected):
+    repr_graph = repr(graph)
+    assert repr_graph == expected

@@ -66,6 +66,9 @@ TypeEdgesInput = Union[Edges, TypeIndexMultiInput]
 
 
 class Graph:
+    """
+    A class for graphs. The main components are nodes and edges.
+    """
 
     def __init__(
             self,
@@ -169,3 +172,6 @@ class Graph:
     @property
     def degree(self) -> int:
         return len(self.nodes)
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}(nodes={self.nodes}, edges={self.edges})'
