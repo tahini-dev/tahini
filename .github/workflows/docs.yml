@@ -18,10 +18,8 @@ jobs:
         pip install -r requirements/docs.txt
     - name: Run sphinx
       run: |
-        sphinx-build -b html docs/ docs/_build/html
-        ls -la docs/_build
-        ls -la docs/_build/html
+        sphinx-build -b html docs/ docs/_build
     - uses: actions/upload-artifact@v2
       with:
         name: DocumentationHTML
-        path: docs/_build/html/
+        path: docs/_build/
