@@ -19,7 +19,8 @@ jobs:
     - name: Run sphinx
       run: |
         sphinx-build -b html docs/ docs/_build
-        ls -la docs
+        ls -la docs/_build
+        ls -la docs/_build/html
     - uses: actions/upload-artifact@v2
       with:
         name: DocumentationHTML
