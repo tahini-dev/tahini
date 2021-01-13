@@ -10,19 +10,17 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
-import os
-import sys
-sys.path.insert(0, os.path.abspath('../../tahini'))
-
+import tahini
 
 # -- Project information -----------------------------------------------------
 
 project = 'tahini'
-copyright = '2021, tahini-dev'
-author = 'tahini-dev'
+author = tahini.__author__
+copyright = f'{2021}, {author}'
+
 
 # The full version, including alpha/beta/rc tags
-release = '2020.01.1'
+release = tahini.__version__
 
 
 # -- General configuration ---------------------------------------------------
