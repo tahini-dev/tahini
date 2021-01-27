@@ -13,4 +13,6 @@ from .core import (
 
 from .factory import (
     get_path,
+    get_star,
+    get_complete,
 )
