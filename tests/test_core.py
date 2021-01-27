@@ -166,8 +166,8 @@ def test_edges_get_nodes(edges, args, kwargs, expected):
         get_data_nodes(index=[0, 1, 2]),
         get_data_edges(index=[(0, 1), (1, 2)]),
     ),
-    # degree
-    ([], dict(degree=2), get_data_nodes(index=range(2)), get_data_edges()),
+    # order
+    ([], dict(order=2), get_data_nodes(index=range(2)), get_data_edges()),
     # nodes data
     (
         [],
@@ -402,12 +402,12 @@ def test_graph_drop(graph, args, kwargs, data_nodes_expected, data_edges_expecte
     (tahini.core.Graph(), 0),
     # non empty
     (tahini.core.Graph(nodes=[0, 1]), 2),
-    # degree
-    (tahini.core.Graph(degree=3), 3)
+    # order
+    (tahini.core.Graph(order=3), 3)
 ])
-def test_graph_degree(graph, expected):
-    degree = graph.degree
-    assert degree == expected
+def test_graph_order(graph, expected):
+    order = graph.order
+    assert order == expected
 
 
 @pytest.mark.parametrize('graph, expected', [
@@ -417,3 +417,19 @@ def test_graph_degree(graph, expected):
 def test_graph_repr(graph, expected):
     repr_graph = repr(graph)
     assert repr_graph == expected
+
+
+@pytest.mark.parametrize('graph, expected', [
+    # empty
+    (tahini.core.Graph(), pd.Series(dtype='int64', index=pd.Index([], name='node'), name='degree')),
+    # non empty
+    (tahini.core.Graph(edges=[(0, 1)]), pd.Series(data=[1, 1], index=pd.Index([0, 1], name='node'), name='degree')),
+    # non empty with zero degree
+    (
+        tahini.core.Graph(nodes=[2], edges=[(0, 1)]),
+        pd.Series(data=[1, 1, 0], index=pd.Index([0, 1, 2], name='node'), name='degree'),
+    ),
+])
+def test_graph_degree_by_node(graph, expected):
+    degrees = graph.get_degree_by_node()
+    pd.testing.assert_series_equal(degrees, expected)

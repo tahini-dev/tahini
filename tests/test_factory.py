@@ -17,14 +17,14 @@ def get_data_edges(*args, index=None, **kwargs):
 
 
 @pytest.mark.parametrize('args, kwargs, expected_nodes_data, expected_edges_data', [
-    ([], dict(degree=0), get_data_nodes(index=range(0)), get_data_edges()),
-    ([], dict(degree=1), get_data_nodes(index=range(1)), get_data_edges()),
-    ([], dict(degree=2), get_data_nodes(index=range(2)), get_data_edges(index=[(0, 1)])),
-    ([], dict(degree=3), get_data_nodes(index=range(3)), get_data_edges(index=[(0, 1), (1, 2)])),
-    ([], dict(degree=2, nodes=['a', 'b']), get_data_nodes(index=['a', 'b']), get_data_edges(index=[('a', 'b')])),
+    ([], dict(order=0), get_data_nodes(index=range(0)), get_data_edges()),
+    ([], dict(order=1), get_data_nodes(index=range(1)), get_data_edges()),
+    ([], dict(order=2), get_data_nodes(index=range(2)), get_data_edges(index=[(0, 1)])),
+    ([], dict(order=3), get_data_nodes(index=range(3)), get_data_edges(index=[(0, 1), (1, 2)])),
+    ([], dict(order=2, nodes=['a', 'b']), get_data_nodes(index=['a', 'b']), get_data_edges(index=[('a', 'b')])),
     (
         [],
-        dict(degree=3, nodes=['a', 'b', 'c']),
+        dict(order=3, nodes=['a', 'b', 'c']),
         get_data_nodes(index=['a', 'b', 'c']),
         get_data_edges(index=[('a', 'b'), ('b', 'c')]),
     ),

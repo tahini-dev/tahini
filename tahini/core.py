@@ -1,6 +1,9 @@
 from __future__ import annotations
 from typing import Optional, Union, TypeVar, NoReturn
 from collections.abc import Sequence
+from math import nan
+
+from pandas import Series
 
 from .base import (
     ContainerDataIndexed,
@@ -81,12 +84,12 @@ class Graph:
             self,
             nodes: Optional[TypeNodesInput] = None,
             edges: Optional[TypeEdgesInput] = None,
-            degree: Optional[int] = None,
+            order: Optional[int] = None,
             nodes_data: Optional[TypeDataInput] = None,
             edges_data: Optional[TypeDataInput] = None,
             **kwargs,
     ):
-        self._nodes = Nodes(index=nodes, data=nodes_data, size=degree, **kwargs)
+        self._nodes = Nodes(index=nodes, data=nodes_data, size=order, **kwargs)
         self._edges = Edges(index=edges, data=edges_data, **kwargs)
         self._nodes = self._update_nodes_from_edges()
 
@@ -177,7 +180,7 @@ class Graph:
         return graph
 
     @property
-    def degree(self) -> int:
+    def order(self) -> int:
         return len(self.nodes)
 
     def __repr__(self):
@@ -191,3 +194,23 @@ class Graph:
         self._nodes = self._nodes.map(mapper=mapper, **kwargs)
         self._edges = self._edges.map(mapper=mapper, **kwargs)
         return self
+
+    def get_degree_by_node(self) -> Series:
+
+        degree_by_node = (
+            self.edges.data.index
+            .to_frame()
+            .stack()
+            .value_counts()
+            .rename_axis(index='node')
+            .rename('degree')
+        )
+
+        degree_by_node = (
+            degree_by_node
+            .combine_first(Series(data=0, index=self.nodes.data.index, name='degree'))
+            [self.nodes]
+            .astype('int64')
+        )
+
+        return degree_by_node

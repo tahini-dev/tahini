@@ -111,6 +111,13 @@ class ContainerDataIndexed(Collection):
             self.data.index = self.data.index.map(mapper=mapper, **kwargs)
         return self
 
+    def copy(
+            self,
+            *args,
+            **kwargs,
+    ) -> TypeContainerDataIndexed:
+        return self.__class__(data=self.data.copy(*args, **kwargs))
+
 
 class ContainerDataIndexedMulti(ContainerDataIndexed):
 

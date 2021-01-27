@@ -425,6 +425,19 @@ def test_container_data_indexed_map(container, args, kwargs, expected):
     pd.testing.assert_frame_equal(container_after_mapped.data, expected)
 
 
+@pytest.mark.parametrize('container, args, kwargs', [
+    # container empty, mapper empty
+    (container_data_indexed_empty(), [], dict()),
+])
+def test_container_data_indexed_copy(container, args, kwargs):
+    container_no_copy = container
+    assert container.data is container_no_copy.data
+    container_reinitialized = container.__class__(data=container.data)
+    assert container.data is not container_reinitialized.data
+    container_copy = container.copy(*args, **kwargs)
+    assert container.data is not container_copy.data
+
+
 @pytest.mark.parametrize('args, kwargs, type_error, message_error', [
     # cannot pass index if data is data_frame
     (
