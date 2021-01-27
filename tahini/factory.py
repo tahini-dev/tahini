@@ -1,9 +1,12 @@
 from typing import Optional
-from itertools import product
 
 from pandas import MultiIndex
 
 from .core import Graph, Nodes
+
+__all__ = [
+    'get_path', 'get_star', 'get_complete',
+]
 
 
 def get_path(
