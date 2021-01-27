@@ -156,6 +156,9 @@ class ContainerDataIndexedMulti(ContainerDataIndexed):
             **kwargs,
     ) -> TypeContainerDataIndexed:
         if mapper is not None:
-            index = [self.data.index.levels[level].map(mapper, **kwargs) for level in range(self.data.index.nlevels)]
+            index = [
+                self.data.index.get_level_values(level=level).map(mapper, **kwargs)
+                for level in range(self.data.index.nlevels)
+            ]
             self.data.index = self._create_index(index=MultiIndex.from_arrays(index))
         return self

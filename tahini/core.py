@@ -21,21 +21,21 @@ class Nodes(ContainerDataIndexed):
             self,
             index: Optional[TypeIndexInput] = None,
             data: Optional[TypeDataInput] = None,
-            size: Optional[int] = None,
+            order: Optional[int] = None,
             **kwargs,
     ):
 
-        if (index is not None and size is not None) or (data is not None and size is not None):
+        if (index is not None and order is not None) or (data is not None and order is not None):
             raise ValueError(
                 f"Inputs for '{self.__class__.__name__}' can either be empty or contain "
                 f"'index', "
                 f"'data', "
                 f"'index' and 'data' "
-                f"or 'size'"
+                f"or 'order'"
             )
 
-        if size is not None:
-            index = range(size)
+        if order is not None:
+            index = range(order)
 
         super().__init__(index=index, data=data, **kwargs)
 
@@ -89,7 +89,7 @@ class Graph:
             edges_data: Optional[TypeDataInput] = None,
             **kwargs,
     ):
-        self._nodes = Nodes(index=nodes, data=nodes_data, size=order, **kwargs)
+        self._nodes = Nodes(index=nodes, data=nodes_data, order=order, **kwargs)
         self._edges = Edges(index=edges, data=edges_data, **kwargs)
         self._nodes = self._update_nodes_from_edges()
 
@@ -182,6 +182,10 @@ class Graph:
     @property
     def order(self) -> int:
         return len(self.nodes)
+
+    @property
+    def size(self) -> int:
+        return len(self.edges)
 
     def __repr__(self):
         return f'{self.__class__.__name__}(nodes={self.nodes}, edges={self.edges})'

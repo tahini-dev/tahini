@@ -5,29 +5,29 @@ import tahini.core
 
 
 @pytest.mark.parametrize('args, kwargs, type_error, message_error', [
-    # can only pass empty or index and/or data or size
+    # can only pass empty or index and/or data or order
     (
         [],
-        dict(index=[], data=[], size=1),
+        dict(index=[], data=[], order=1),
         ValueError,
-        "Inputs for 'Nodes' can either be empty or contain 'index', 'data', 'index' and 'data' or 'size'",
+        "Inputs for 'Nodes' can either be empty or contain 'index', 'data', 'index' and 'data' or 'order'",
     ),
-    # can only pass empty or index and/or data or size
+    # can only pass empty or index and/or data or order
     (
         [],
-        dict(index=[], size=1),
+        dict(index=[], order=1),
         ValueError,
-        "Inputs for 'Nodes' can either be empty or contain 'index', 'data', 'index' and 'data' or 'size'",
+        "Inputs for 'Nodes' can either be empty or contain 'index', 'data', 'index' and 'data' or 'order'",
     ),
-    # can only pass empty or index and/or data or size
+    # can only pass empty or index and/or data or order
     (
         [],
-        dict(data=[], size=1),
+        dict(data=[], order=1),
         ValueError,
-        "Inputs for 'Nodes' can either be empty or contain 'index', 'data', 'index' and 'data' or 'size'",
+        "Inputs for 'Nodes' can either be empty or contain 'index', 'data', 'index' and 'data' or 'order'",
     ),
-    # size errors are driven by range(stop=size)
-    ([], dict(size=0.5), TypeError, "'float' object cannot be interpreted as an integer"),
+    # order errors are driven by range(stop=order)
+    ([], dict(order=0.5), TypeError, "'float' object cannot be interpreted as an integer"),
     # if data is a data_frame then index has to be None because no simple way to set index to index without taking into
     # account other cases
     (
@@ -54,7 +54,7 @@ def get_data_nodes(name_index='node', *args, **kwargs) -> pd.DataFrame:
     ([[]], dict(), get_data_nodes()),
     # args - data empty
     ([None, []], dict(), get_data_nodes()),
-    # args - size
+    # args - order
     ([None, None, 1], dict(), get_data_nodes(index=range(1))),
     # nodes empty
     ([], dict(index=[]), get_data_nodes()),
@@ -62,12 +62,12 @@ def get_data_nodes(name_index='node', *args, **kwargs) -> pd.DataFrame:
     ([], dict(data=[]), get_data_nodes()),
     # empty nodes and data
     ([], dict(index=[], data=[]), get_data_nodes()),
-    # size zero
-    ([], dict(size=0), get_data_nodes(index=range(0))),
-    # size
-    ([], dict(size=1), get_data_nodes(index=range(1))),
-    # size negative
-    ([], dict(size=-1), get_data_nodes(index=range(-1))),
+    # order zero
+    ([], dict(order=0), get_data_nodes(index=range(0))),
+    # order
+    ([], dict(order=1), get_data_nodes(index=range(1))),
+    # order negative
+    ([], dict(order=-1), get_data_nodes(index=range(-1))),
     # nodes input it's own class
     ([], dict(index=tahini.core.Nodes()), get_data_nodes()),
 ])
@@ -403,11 +403,28 @@ def test_graph_drop(graph, args, kwargs, data_nodes_expected, data_edges_expecte
     # non empty
     (tahini.core.Graph(nodes=[0, 1]), 2),
     # order
-    (tahini.core.Graph(order=3), 3)
+    (tahini.core.Graph(order=3), 3),
 ])
 def test_graph_order(graph, expected):
     order = graph.order
     assert order == expected
+
+
+@pytest.mark.parametrize('graph, expected', [
+    # empty
+    (tahini.core.Graph(), 0),
+    # non empty nodes
+    (tahini.core.Graph(nodes=[0, 1]), 0),
+    # order
+    (tahini.core.Graph(order=3), 0),
+    # non empty edges
+    (tahini.core.Graph(edges=[(0, 1)]), 1),
+    # non empty edges
+    (tahini.core.Graph(edges=[(0, 1), (1, 2)]), 2),
+])
+def test_graph_size(graph, expected):
+    size = graph.size
+    assert size == expected
 
 
 @pytest.mark.parametrize('graph, expected', [
