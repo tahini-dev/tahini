@@ -134,13 +134,13 @@ def test__get_positions_layout_random(args, kwargs, expected):
     ([], dict(graph=Graph(order=1)), get_data_frame(data=[[0, 0]], nodes=range(1))),
     # graph of order 2
     ([], dict(graph=Graph(order=2)), get_data_frame(data=[[1, 0], [-1, 0]], nodes=range(2))),
-    # layout
+    # layout - circular
     (
         [],
         dict(graph=Graph(order=2), layout='circular'),
         get_data_frame(data=[[1, 0], [-1, 0]], nodes=range(2)),
     ),
-    # layout
+    # layout - random
     (
         [],
         dict(graph=Graph(order=2), layout='random', seed=0),
