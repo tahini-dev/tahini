@@ -55,7 +55,7 @@ class Edges(ContainerDataIndexedMulti):
 
     @staticmethod
     def _names_index() -> Sequence[str]:
-        return ['node_1', 'node_2']
+        return ['node_0', 'node_1']
 
     def get_nodes(self) -> Nodes:
         return Nodes(index=self.data.index.to_frame().stack().drop_duplicates())
@@ -123,7 +123,7 @@ class Graph:
     def _update_nodes_from_edges(self) -> Nodes:
         return self.nodes.update(index=self.edges.get_nodes())
 
-    def _update_edges_from_nodes(self) -> Nodes:
+    def _update_edges_from_nodes(self) -> Edges:
         return self.edges.keep_nodes(nodes=self.nodes)
 
     def update_nodes(

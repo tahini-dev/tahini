@@ -2,6 +2,7 @@ import pytest
 import pandas as pd
 
 import tahini.core
+import tahini.testing
 
 
 @pytest.mark.parametrize('args, kwargs, type_error, message_error', [
@@ -78,9 +79,9 @@ def test_nodes_init(args, kwargs, expected):
 
 def get_data_edges(*args, index=None, **kwargs):
     if index is None:
-        index = pd.MultiIndex(levels=[[], []], codes=[[], []], names=['node_1', 'node_2'])
+        index = pd.MultiIndex(levels=[[], []], codes=[[], []], names=['node_0', 'node_1'])
     else:
-        index = pd.MultiIndex.from_tuples(index, names=['node_1', 'node_2'])
+        index = pd.MultiIndex.from_tuples(index, names=['node_0', 'node_1'])
     return pd.DataFrame(*args, index=index, **kwargs)
 
 
@@ -121,280 +122,250 @@ def test_edges_init(args, kwargs, expected):
 
 @pytest.mark.parametrize('edges, args, kwargs, expected', [
     # empty
-    (tahini.core.Edges(), [], dict(), get_data_nodes()),
+    (tahini.core.Edges(), [], dict(), tahini.core.Nodes()),
     # non empty
-    (tahini.core.Edges(index=[(0, 1), (1, 2)]), [], dict(), get_data_nodes(index=[0, 1, 2])),
+    (tahini.core.Edges(index=[(0, 1), (1, 2)]), [], dict(), tahini.core.Nodes(index=[0, 1, 2])),
 ])
 def test_edges_get_nodes(edges, args, kwargs, expected):
     nodes = edges.get_nodes(*args, **kwargs)
-    pd.testing.assert_frame_equal(nodes.data, expected)
+    tahini.testing.assert_nodes_equal(nodes, expected)
 
 
 @pytest.mark.parametrize('edges, args, kwargs, expected', [
     # empty
-    (tahini.core.Edges(), [], dict(), get_data_edges()),
+    (tahini.core.Edges(), [], dict(), tahini.core.Edges()),
     # non empty edges
-    (tahini.core.Edges(index=[(0, 1), (1, 2)]), [], dict(), get_data_edges(index=[(0, 1), (1, 2)])),
+    (tahini.core.Edges(index=[(0, 1), (1, 2)]), [], dict(), tahini.core.Edges(index=[(0, 1), (1, 2)])),
     # non empty nodes
-    (tahini.core.Edges(), [], dict(nodes=[0, 1]), get_data_edges()),
+    (tahini.core.Edges(), [], dict(nodes=[0, 1]), tahini.core.Edges()),
     # non empty both
-    (tahini.core.Edges(index=[(0, 1), (1, 2)]), [], dict(nodes=[0, 1]), get_data_edges(index=[(0, 1)])),
+    (tahini.core.Edges(index=[(0, 1), (1, 2)]), [], dict(nodes=[0, 1]), tahini.core.Edges(index=[(0, 1)])),
 ])
-def test_edges_get_nodes(edges, args, kwargs, expected):
+def test_edges_keep_nodes(edges, args, kwargs, expected):
     edges = edges.keep_nodes(*args, **kwargs)
-    pd.testing.assert_frame_equal(edges.data, expected)
+    tahini.testing.assert_edges_equal(edges, expected)
 
 
-@pytest.mark.parametrize('args, kwargs, data_nodes_expected, data_edges_expected', [
+@pytest.mark.parametrize('args, kwargs, nodes_expected, edges_expected', [
     # empty
-    ([], dict(), get_data_nodes(), get_data_edges()),
+    ([], dict(), tahini.core.Nodes(), tahini.core.Edges()),
     # nodes
-    ([], dict(nodes=[0, 1]), get_data_nodes(index=[0, 1]), get_data_edges()),
+    ([], dict(nodes=[0, 1]), tahini.core.Nodes(index=[0, 1]), tahini.core.Edges()),
     # edges
-    ([], dict(edges=[(0, 1), (1, 2)]), get_data_nodes(index=[0, 1, 2]), get_data_edges(index=[(0, 1), (1, 2)])),
+    ([], dict(edges=[(0, 1), (1, 2)]), tahini.core.Nodes(index=[0, 1, 2]), tahini.core.Edges(index=[(0, 1), (1, 2)])),
     # nodes and edges
     (
         [],
         dict(nodes=[0, 1, 2], edges=[(0, 1), (1, 2)]),
-        get_data_nodes(index=[0, 1, 2]),
-        get_data_edges(index=[(0, 1), (1, 2)]),
+        tahini.core.Nodes(index=[0, 1, 2]),
+        tahini.core.Edges(index=[(0, 1), (1, 2)]),
     ),
     # partial nodes and edges
     (
         [],
         dict(nodes=[0, 1], edges=[(0, 1), (1, 2)]),
-        get_data_nodes(index=[0, 1, 2]),
-        get_data_edges(index=[(0, 1), (1, 2)]),
+        tahini.core.Nodes(index=[0, 1, 2]),
+        tahini.core.Edges(index=[(0, 1), (1, 2)]),
     ),
     # order
-    ([], dict(order=2), get_data_nodes(index=range(2)), get_data_edges()),
+    ([], dict(order=2), tahini.core.Nodes(index=range(2)), tahini.core.Edges()),
     # nodes data
     (
         [],
         dict(nodes_data=pd.DataFrame(data=dict(value=['a', 'b']))),
-        get_data_nodes(data=dict(value=['a', 'b'])),
-        get_data_edges(),
+        tahini.core.Nodes(data=dict(value=['a', 'b'])),
+        tahini.core.Edges(),
     ),
     # edges data
     (
         [],
         dict(edges_data=pd.DataFrame(data=dict(value=['a', 'b']), index=[(0, 1), (1, 2)])),
-        get_data_nodes(index=[0, 1, 2]),
-        get_data_edges(data=dict(value=['a', 'b']), index=[(0, 1), (1, 2)]),
+        tahini.core.Nodes(index=[0, 1, 2]),
+        tahini.core.Edges(data=dict(value=['a', 'b']), index=[(0, 1), (1, 2)]),
     ),
 ])
-def test_graph_init(args, kwargs, data_nodes_expected, data_edges_expected):
+def test_graph_init(args, kwargs, nodes_expected, edges_expected):
     graph = tahini.core.Graph(*args, **kwargs)
-    pd.testing.assert_frame_equal(graph.nodes.data, data_nodes_expected)
-    pd.testing.assert_frame_equal(graph.edges.data, data_edges_expected)
+    tahini.testing.assert_nodes_equal(graph.nodes, nodes_expected)
+    tahini.testing.assert_edges_equal(graph.edges, edges_expected)
 
 
-@pytest.mark.parametrize('graph, edges, args, kwargs, data_nodes_expected, data_edges_expected', [
+@pytest.mark.parametrize('graph, edges, args, kwargs, nodes_expected, graph_expected', [
     # empty
     (
         tahini.core.Graph(),
-        tahini.core.Edges(index=[[0, 1]]),
+        tahini.core.Edges(index=[(0, 1)]),
         [],
         dict(),
-        get_data_nodes(index=[0, 1]),
-        get_data_edges(index=[[0, 1]]),
+        tahini.core.Nodes(index=[0, 1]),
+        tahini.core.Graph(edges=[(0, 1)]),
     ),
     # non empty
     (
         tahini.core.Graph(nodes=[0]),
-        tahini.core.Edges(index=[[1, 2]]),
+        tahini.core.Edges(index=[(1, 2)]),
         [],
         dict(),
-        get_data_nodes(index=[0, 1, 2]),
-        get_data_edges(index=[[1, 2]]),
+        tahini.core.Nodes(index=[0, 1, 2]),
+        tahini.core.Graph(nodes=[0, 1, 2], edges=[(1, 2)]),
     ),
 ])
-def test_graph__update_nodes_from_edges(graph, edges, args, kwargs, data_nodes_expected, data_edges_expected):
+def test_graph__update_nodes_from_edges(graph, edges, args, kwargs, nodes_expected, graph_expected):
     graph._edges = edges
     nodes = graph._update_nodes_from_edges(*args, **kwargs)
-    pd.testing.assert_frame_equal(nodes.data, data_nodes_expected)
-    pd.testing.assert_frame_equal(graph.edges.data, data_edges_expected)
+    tahini.testing.assert_nodes_equal(nodes, nodes_expected)
+    tahini.testing.assert_graph_equal(graph, graph_expected)
 
 
-@pytest.mark.parametrize('graph, nodes, args, kwargs, data_nodes_expected, data_edges_expected', [
+@pytest.mark.parametrize('graph, args, kwargs, expected', [
     # empty
-    (
-        tahini.core.Graph(),
-        tahini.core.Nodes(index=[0, 1]),
-        [],
-        dict(),
-        get_data_nodes(index=[0, 1]),
-        get_data_edges(),
-    ),
-    # non empty
-    (
-        tahini.core.Graph(edges=[[0, 1], [1, 2]]),
-        tahini.core.Nodes(index=[0, 1]),
-        [],
-        dict(),
-        get_data_nodes(index=[0, 1]),
-        get_data_edges(index=[[0, 1]]),
-    ),
-])
-def test_graph__update_edges_from_nodes(graph, nodes, args, kwargs, data_nodes_expected, data_edges_expected):
-    graph._nodes = nodes
-    edges = graph._update_edges_from_nodes(*args, **kwargs)
-    pd.testing.assert_frame_equal(graph.nodes.data, data_nodes_expected)
-    pd.testing.assert_frame_equal(edges.data, data_edges_expected)
-
-
-@pytest.mark.parametrize('graph, args, kwargs, data_nodes_expected, data_edges_expected', [
-    # empty
-    (tahini.core.Graph(), [], dict(), get_data_nodes(), get_data_edges()),
+    (tahini.core.Graph(), [], dict(), tahini.core.Graph()),
     # non empty graph
-    (tahini.core.Graph(nodes=[0, 1]), [], dict(), get_data_nodes(index=[0, 1]), get_data_edges()),
+    (tahini.core.Graph(nodes=[0, 1]), [], dict(), tahini.core.Graph(nodes=[0, 1])),
     # non empty nodes
-    (tahini.core.Graph(), [], dict(nodes=[0, 1]), get_data_nodes(index=[0, 1]), get_data_edges()),
+    (tahini.core.Graph(), [], dict(nodes=[0, 1]), tahini.core.Graph(nodes=[0, 1])),
     # non empty both same
-    (tahini.core.Graph(nodes=[0, 1]), [], dict(nodes=[0, 1]), get_data_nodes(index=[0, 1]), get_data_edges()),
+    (tahini.core.Graph(nodes=[0, 1]), [], dict(nodes=[0, 1]), tahini.core.Graph(nodes=[0, 1])),
     # non empty both different
-    (tahini.core.Graph(nodes=[0, 1]), [], dict(nodes=[2]), get_data_nodes(index=[0, 1, 2]), get_data_edges()),
+    (tahini.core.Graph(nodes=[0, 1]), [], dict(nodes=[2]), tahini.core.Graph(nodes=[0, 1, 2])),
     # data
     (
         tahini.core.Graph(nodes=[0, 1]),
         [],
         dict(data=dict(value=['a', 'b'])),
-        get_data_nodes(data=dict(value=['a', 'b']), index=[0, 1]),
-        get_data_edges(),
+        tahini.core.Graph(nodes_data=dict(value=['a', 'b']), nodes=[0, 1]),
     ),
 ])
-def test_graph_update_nodes(graph, args, kwargs, data_nodes_expected, data_edges_expected):
+def test_graph_update_nodes(graph, args, kwargs, expected):
     graph_updated = graph.update_nodes(*args, **kwargs)
-    pd.testing.assert_frame_equal(graph_updated.nodes.data, data_nodes_expected)
-    pd.testing.assert_frame_equal(graph_updated.edges.data, data_edges_expected)
+    tahini.testing.assert_graph_equal(graph_updated, expected)
 
 
-@pytest.mark.parametrize('graph, args, kwargs, data_nodes_expected, data_edges_expected', [
+@pytest.mark.parametrize('graph, nodes, args, kwargs, edges_expected, graph_expected', [
     # empty
-    (tahini.core.Graph(), [], dict(), get_data_nodes(), get_data_edges()),
+    (
+        tahini.core.Graph(),
+        tahini.core.Nodes(index=[0, 1]),
+        [],
+        dict(),
+        tahini.core.Edges(),
+        tahini.core.Graph(nodes=[0, 1]),
+    ),
+    # non empty
+    (
+        tahini.core.Graph(edges=[[0, 1], [1, 2]]),
+        tahini.core.Nodes(index=[0, 1]),
+        [],
+        dict(),
+        tahini.core.Edges(index=[[0, 1]]),
+        tahini.core.Graph(edges=[[0, 1]]),
+    ),
+])
+def test_graph__update_edges_from_nodes(graph, nodes, args, kwargs, edges_expected, graph_expected):
+    graph._nodes = nodes
+    edges = graph._update_edges_from_nodes(*args, **kwargs)
+    tahini.testing.assert_edges_equal(edges, edges_expected)
+    tahini.testing.assert_graph_equal(graph, graph_expected)
+
+
+@pytest.mark.parametrize('graph, args, kwargs, expected', [
+    # empty
+    (tahini.core.Graph(), [], dict(), tahini.core.Graph()),
     # non empty graph
-    (tahini.core.Graph(edges=[[0, 1]]), [], dict(), get_data_nodes(index=[0, 1]), get_data_edges(index=[[0, 1]])),
+    (tahini.core.Graph(edges=[[0, 1]]), [], dict(), tahini.core.Graph(edges=[[0, 1]])),
     # non empty edges
-    (tahini.core.Graph(), [], dict(edges=[[0, 1]]), get_data_nodes(index=[0, 1]), get_data_edges(index=[[0, 1]])),
+    (tahini.core.Graph(), [], dict(edges=[[0, 1]]), tahini.core.Graph(edges=[[0, 1]])),
     # non empty both different
-    (
-        tahini.core.Graph(edges=[[0, 1]]),
-        [],
-        dict(edges=[[0, 1]]),
-        get_data_nodes(index=[0, 1]),
-        get_data_edges(index=[[0, 1]]),
-    ),
+    (tahini.core.Graph(edges=[[0, 1]]), [], dict(edges=[[0, 1]]), tahini.core.Graph(edges=[[0, 1]])),
     # non empty both different
-    (
-        tahini.core.Graph(edges=[[0, 1]]),
-        [],
-        dict(edges=[[1, 2]]),
-        get_data_nodes(index=[0, 1, 2]),
-        get_data_edges(index=[[0, 1], [1, 2]]),
-    ),
+    (tahini.core.Graph(edges=[[0, 1]]), [], dict(edges=[[1, 2]]), tahini.core.Graph(edges=[[0, 1], [1, 2]])),
     # data
     (
         tahini.core.Graph(edges=[[0, 1], [1, 2]]),
         [],
         dict(edges=[[0, 1], [1, 2]], data=dict(value=['a', 'b'])),
-        get_data_nodes(index=[0, 1, 2]),
-        get_data_edges(data=dict(value=['a', 'b']), index=[[0, 1], [1, 2]]),
+        tahini.core.Graph(edges_data=dict(value=['a', 'b']), edges=[[0, 1], [1, 2]]),
     ),
 ])
-def test_graph_update_edges(graph, args, kwargs, data_nodes_expected, data_edges_expected):
+def test_graph_update_edges(graph, args, kwargs, expected):
     graph_updated = graph.update_edges(*args, **kwargs)
-    pd.testing.assert_frame_equal(graph_updated.nodes.data, data_nodes_expected)
-    pd.testing.assert_frame_equal(graph_updated.edges.data, data_edges_expected)
+    tahini.testing.assert_graph_equal(graph_updated, expected)
 
 
-@pytest.mark.parametrize('graph, args, kwargs, data_nodes_expected, data_edges_expected', [
+@pytest.mark.parametrize('graph, args, kwargs, expected', [
     # empty
-    (tahini.core.Graph(), [], dict(), get_data_nodes(), get_data_edges()),
+    (tahini.core.Graph(), [], dict(), tahini.core.Graph()),
 ])
-def test_graph_update(graph, args, kwargs, data_nodes_expected, data_edges_expected):
+def test_graph_update(graph, args, kwargs, expected):
     graph_updated = graph.update(*args, **kwargs)
-    pd.testing.assert_frame_equal(graph_updated.nodes.data, data_nodes_expected)
-    pd.testing.assert_frame_equal(graph_updated.edges.data, data_edges_expected)
+    tahini.testing.assert_graph_equal(graph_updated, expected)
 
 
-@pytest.mark.parametrize('graph, args, kwargs, data_nodes_expected, data_edges_expected', [
+@pytest.mark.parametrize('graph, args, kwargs, expected', [
     # empty all
-    (tahini.core.Graph(), [], dict(), get_data_nodes(), get_data_edges()),
+    (tahini.core.Graph(), [], dict(), tahini.core.Graph()),
     # empty list
-    (tahini.core.Graph(), [], dict(nodes=[]), get_data_nodes(), get_data_edges()),
+    (tahini.core.Graph(), [], dict(nodes=[]), tahini.core.Graph()),
     # empty inputs
-    (tahini.core.Graph(nodes=[0, 1]), [], dict(), get_data_nodes(index=[0, 1]), get_data_edges()),
+    (tahini.core.Graph(nodes=[0, 1]), [], dict(), tahini.core.Graph(nodes=[0, 1])),
     # non empty
-    (tahini.core.Graph(nodes=[0, 1]), [], dict(nodes=[0]), get_data_nodes(index=[1]), get_data_edges()),
+    (tahini.core.Graph(nodes=[0, 1]), [], dict(nodes=[0]), tahini.core.Graph(nodes=[1])),
     # non empty with removing edges
     (
         tahini.core.Graph(nodes=[0, 1], edges=[[0, 1]]),
         [],
         dict(nodes=[0]),
-        get_data_nodes(index=[1]),
-        get_data_edges(index=[[0, 1]]).drop(index=[(0, 1)]),
+        tahini.core.Graph(nodes=[1], edges=tahini.core.Edges()),
     ),
 ])
-def test_graph_drop_nodes(graph, args, kwargs, data_nodes_expected, data_edges_expected):
+def test_graph_drop_nodes(graph, args, kwargs, expected):
     graph_dropped = graph.drop_nodes(*args, **kwargs)
-    pd.testing.assert_frame_equal(graph_dropped.nodes.data, data_nodes_expected)
-    pd.testing.assert_frame_equal(graph_dropped.edges.data, data_edges_expected)
+    tahini.testing.assert_graph_equal(graph_dropped, expected)
 
 
-@pytest.mark.parametrize('graph, args, kwargs, data_nodes_expected, data_edges_expected', [
+@pytest.mark.parametrize('graph, args, kwargs, expected', [
     # empty all
-    (tahini.core.Graph(), [], dict(), get_data_nodes(), get_data_edges()),
+    (tahini.core.Graph(), [], dict(), tahini.core.Graph()),
     # empty list
-    (tahini.core.Graph(), [], dict(edges=[]), get_data_nodes(), get_data_edges()),
+    (tahini.core.Graph(), [], dict(edges=[]), tahini.core.Graph()),
     # empty inputs
     (
         tahini.core.Graph(edges=[[0, 1], [1, 2]]),
         [],
         dict(),
-        get_data_nodes(index=[0, 1, 2]),
-        get_data_edges(index=[[0, 1], [1, 2]]),
+        tahini.core.Graph(edges=[[0, 1], [1, 2]]),
     ),
     # non empty
     (
         tahini.core.Graph(edges=[[0, 1], [1, 2]]),
         [],
         dict(edges=[(0, 1)]),
-        get_data_nodes(index=[0, 1, 2]),
-        get_data_edges(index=[[1, 2]]),
+        tahini.core.Graph(nodes=[0, 1, 2], edges=[[1, 2]]),
     ),
 ])
-def test_graph_drop_edges(graph, args, kwargs, data_nodes_expected, data_edges_expected):
+def test_graph_drop_edges(graph, args, kwargs, expected):
     graph_dropped = graph.drop_edges(*args, **kwargs)
-    pd.testing.assert_frame_equal(graph_dropped.nodes.data, data_nodes_expected)
-    pd.testing.assert_frame_equal(graph_dropped.edges.data, data_edges_expected)
+    tahini.testing.assert_graph_equal(graph_dropped, expected)
 
 
-@pytest.mark.parametrize('graph, args, kwargs, data_nodes_expected, data_edges_expected', [
+@pytest.mark.parametrize('graph, args, kwargs, expected', [
     # empty all
-    (tahini.core.Graph(), [], dict(), get_data_nodes(), get_data_edges()),
+    (tahini.core.Graph(), [], dict(), tahini.core.Graph()),
     # empty lists
-    (tahini.core.Graph(), [], dict(nodes=[], edges=[]), get_data_nodes(), get_data_edges()),
+    (tahini.core.Graph(), [], dict(nodes=[], edges=[]), tahini.core.Graph()),
     # empty inputs
-    (
-        tahini.core.Graph(edges=[[0, 1], [1, 2]]),
-        [],
-        dict(),
-        get_data_nodes(index=[0, 1, 2]),
-        get_data_edges(index=[[0, 1], [1, 2]]),
-    ),
+    (tahini.core.Graph(edges=[[0, 1], [1, 2]]), [], dict(), tahini.core.Graph(edges=[[0, 1], [1, 2]])),
     # non empty
     (
         tahini.core.Graph(edges=[[0, 1], [1, 2], [1, 3]]),
         [],
         dict(nodes=[0], edges=[(1, 2)]),
-        get_data_nodes(index=[1, 2, 3]),
-        get_data_edges(index=[[1, 3]]),
+        tahini.core.Graph(nodes=[1, 2, 3], edges=[[1, 3]]),
     ),
 ])
-def test_graph_drop(graph, args, kwargs, data_nodes_expected, data_edges_expected):
+def test_graph_drop(graph, args, kwargs, expected):
     graph_dropped = graph.drop(*args, **kwargs)
-    pd.testing.assert_frame_equal(graph_dropped.nodes.data, data_nodes_expected)
-    pd.testing.assert_frame_equal(graph_dropped.edges.data, data_edges_expected)
+    tahini.testing.assert_graph_equal(graph_dropped, expected)
 
 
 @pytest.mark.parametrize('graph, expected', [

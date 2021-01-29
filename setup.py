@@ -15,6 +15,7 @@ setup(
     packages=find_packages(exclude=('tests',)),
     install_requires=[
         'pandas',
+        'numpy',
     ],
     python_requires='>=3.7',
     include_package_data=True,
