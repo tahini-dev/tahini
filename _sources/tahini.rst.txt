@@ -20,6 +20,30 @@ tahini.core module
    :undoc-members:
    :show-inheritance:
 
+tahini.factory module
+---------------------
+
+.. automodule:: tahini.factory
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tahini.plot module
+------------------
+
+.. automodule:: tahini.plot
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tahini.testing module
+---------------------
+
+.. automodule:: tahini.testing
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

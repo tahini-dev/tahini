@@ -168,6 +168,50 @@
 </dd></dl>
 
 </div>
+<div class="section" id="module-tahini.factory">
+<span id="tahini-factory-module"></span><h2>tahini.factory module<a class="headerlink" href="#module-tahini.factory" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="tahini.factory.get_complete">
+<code class="sig-prename descclassname">tahini.factory.</code><code class="sig-name descname">get_complete</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">order</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nodes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="#tahini.core.Nodes" title="tahini.core.Nodes">tahini.core.Nodes</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#tahini.core.Graph" title="tahini.core.Graph">tahini.core.Graph</a><a class="headerlink" href="#tahini.factory.get_complete" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="tahini.factory.get_path">
+<code class="sig-prename descclassname">tahini.factory.</code><code class="sig-name descname">get_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">order</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nodes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="#tahini.core.Nodes" title="tahini.core.Nodes">tahini.core.Nodes</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#tahini.core.Graph" title="tahini.core.Graph">tahini.core.Graph</a><a class="headerlink" href="#tahini.factory.get_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="tahini.factory.get_star">
+<code class="sig-prename descclassname">tahini.factory.</code><code class="sig-name descname">get_star</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">order</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nodes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="#tahini.core.Nodes" title="tahini.core.Nodes">tahini.core.Nodes</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#tahini.core.Graph" title="tahini.core.Graph">tahini.core.Graph</a><a class="headerlink" href="#tahini.factory.get_star" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-tahini.plot">
+<span id="tahini-plot-module"></span><h2>tahini.plot module<a class="headerlink" href="#module-tahini.plot" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="tahini.plot.get_positions">
+<code class="sig-prename descclassname">tahini.plot.</code><code class="sig-name descname">get_positions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">graph</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#tahini.core.Graph" title="tahini.core.Graph">tahini.core.Graph</a></span></em>, <em class="sig-param"><span class="n">layout</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">center</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Sequence<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dim</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#tahini.plot.get_positions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-tahini.testing">
+<span id="tahini-testing-module"></span><h2>tahini.testing module<a class="headerlink" href="#module-tahini.testing" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="tahini.testing.assert_edges_equal">
+<code class="sig-prename descclassname">tahini.testing.</code><code class="sig-name descname">assert_edges_equal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">left</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#tahini.core.Edges" title="tahini.core.Edges">tahini.core.Edges</a></span></em>, <em class="sig-param"><span class="n">right</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#tahini.core.Edges" title="tahini.core.Edges">tahini.core.Edges</a></span></em>, <em class="sig-param"><span class="n">check_index_type</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>bool<span class="p">, </span>str<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">obj</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; NoReturn<a class="headerlink" href="#tahini.testing.assert_edges_equal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="tahini.testing.assert_graph_equal">
+<code class="sig-prename descclassname">tahini.testing.</code><code class="sig-name descname">assert_graph_equal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">left</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#tahini.core.Graph" title="tahini.core.Graph">tahini.core.Graph</a></span></em>, <em class="sig-param"><span class="n">right</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#tahini.core.Graph" title="tahini.core.Graph">tahini.core.Graph</a></span></em>, <em class="sig-param"><span class="n">obj</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; NoReturn<a class="headerlink" href="#tahini.testing.assert_graph_equal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="tahini.testing.assert_nodes_equal">
+<code class="sig-prename descclassname">tahini.testing.</code><code class="sig-name descname">assert_nodes_equal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">left</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#tahini.core.Nodes" title="tahini.core.Nodes">tahini.core.Nodes</a></span></em>, <em class="sig-param"><span class="n">right</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#tahini.core.Nodes" title="tahini.core.Nodes">tahini.core.Nodes</a></span></em>, <em class="sig-param"><span class="n">check_index_type</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>bool<span class="p">, </span>str<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">obj</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; NoReturn<a class="headerlink" href="#tahini.testing.assert_nodes_equal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
 <div class="section" id="module-tahini">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tahini" title="Permalink to this headline">¶</a></h2>
 </div>
