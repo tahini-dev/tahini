@@ -414,6 +414,22 @@ def test_container_data_indexed_drop(container, args, kwargs, expected):
     pd.testing.assert_frame_equal(container_after_dropped.data, expected)
 
 
+@pytest.mark.parametrize('container, args, kwargs, type_error, message_error', [
+    # non unique mapping
+    (
+        container_data_indexed_range(2),
+        [],
+        dict(mapper={0: 'a', 1: 'a'}),
+        ValueError,
+        "Index needs to be unique for 'ContainerDataIndexed'",
+    ),
+])
+def test_container_data_indexed_map_error(container, args, kwargs, type_error, message_error):
+    with pytest.raises(type_error) as e:
+        container.map(*args, **kwargs)
+    assert e.value.args[0] == message_error
+
+
 @pytest.mark.parametrize('container, args, kwargs, expected', [
     # container empty, mapper empty
     (container_data_indexed_empty(), [], dict(), get_data_frame()),
@@ -537,6 +553,22 @@ def get_data_index_multi(*args, index=None, **kwargs):
 def test_container_data_indexed_multi_init(args, kwargs, expected):
     container = tahini.base.ContainerDataIndexedMulti(*args, **kwargs)
     pd.testing.assert_frame_equal(container.data, expected)
+
+
+@pytest.mark.parametrize('container, args, kwargs, type_error, message_error', [
+    # non unique mapping
+    (
+        tahini.core.ContainerDataIndexedMulti(index=[(0, 1), (0, 2)]),
+        [],
+        dict(mapper={1: 'a', 2: 'a'}),
+        ValueError,
+        "Index needs to be unique for 'ContainerDataIndexedMulti'",
+    ),
+])
+def test_container_data_indexed_multi_map_error(container, args, kwargs, type_error, message_error):
+    with pytest.raises(type_error) as e:
+        container.map(*args, **kwargs)
+    assert e.value.args[0] == message_error
 
 
 @pytest.mark.parametrize('container, args, kwargs, expected', [

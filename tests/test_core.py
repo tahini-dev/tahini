@@ -217,6 +217,16 @@ def test_graph__update_nodes_from_edges(graph, edges, args, kwargs, nodes_expect
     tahini.testing.assert_graph_equal(graph, graph_expected)
 
 
+@pytest.mark.parametrize('graph, args, kwargs, type_error, message_error', [
+    # non unique update
+    (tahini.core.Graph(), [], dict(nodes=[0, 0]), ValueError, "Index needs to be unique for 'Nodes'"),
+])
+def test_graph_update_nodes_error(graph, args, kwargs, type_error, message_error):
+    with pytest.raises(type_error) as e:
+        graph.update_nodes(*args, **kwargs)
+    assert e.value.args[0] == message_error
+
+
 @pytest.mark.parametrize('graph, args, kwargs, expected', [
     # empty
     (tahini.core.Graph(), [], dict(), tahini.core.Graph()),
@@ -266,6 +276,16 @@ def test_graph__update_edges_from_nodes(graph, nodes, args, kwargs, edges_expect
     edges = graph._update_edges_from_nodes(*args, **kwargs)
     tahini.testing.assert_edges_equal(edges, edges_expected)
     tahini.testing.assert_graph_equal(graph, graph_expected)
+
+
+@pytest.mark.parametrize('graph, args, kwargs, type_error, message_error', [
+    # non unique update
+    (tahini.core.Graph(), [], dict(edges=[(0, 1), (0, 1)]), ValueError, "Index needs to be unique for 'Edges'"),
+])
+def test_graph_update_edges_error(graph, args, kwargs, type_error, message_error):
+    with pytest.raises(type_error) as e:
+        graph.update_edges(*args, **kwargs)
+    assert e.value.args[0] == message_error
 
 
 @pytest.mark.parametrize('graph, args, kwargs, expected', [
@@ -405,6 +425,39 @@ def test_graph_size(graph, expected):
 def test_graph_repr(graph, expected):
     repr_graph = repr(graph)
     assert repr_graph == expected
+
+
+@pytest.mark.parametrize('graph, args, kwargs, type_error, message_error', [
+    # non unique mapping
+    (
+        tahini.core.Graph(edges=[(0, 1), (0, 2)]),
+        [],
+        dict(mapper={1: 'a', 2: 'a'}),
+        ValueError,
+        "Index needs to be unique for 'Nodes'",
+    ),
+])
+def test_graph_map_nodes_error(graph, args, kwargs, type_error, message_error):
+    with pytest.raises(type_error) as e:
+        graph.map_nodes(*args, **kwargs)
+    assert e.value.args[0] == message_error
+
+
+@pytest.mark.parametrize('graph, args, kwargs, expected', [
+    # empty
+    (tahini.core.Graph(), [], dict(), tahini.core.Graph()),
+    # empty mapping
+    (tahini.core.Graph(), [], dict(mapper=dict()), tahini.core.Graph()),
+    # non empty mapping
+    (tahini.core.Graph(), [], dict(mapper={}), tahini.core.Graph()),
+    # non empty graph
+    (tahini.core.Graph(order=1), [], dict(mapper={0: 'a'}), tahini.core.Graph(nodes=['a'])),
+    # non empty graph
+    (tahini.core.Graph(edges=[(0, 1)]), [], dict(mapper={0: 'a', 1: 'b'}), tahini.core.Graph(edges=[('a', 'b')])),
+])
+def test_graph_map_nodes(graph, args, kwargs, expected):
+    graph_mapped = graph.map_nodes(*args, **kwargs)
+    tahini.testing.assert_graph_equal(graph_mapped, expected)
 
 
 @pytest.mark.parametrize('graph, args, kwargs, expected', [

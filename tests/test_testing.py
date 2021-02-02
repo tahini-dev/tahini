@@ -168,6 +168,17 @@ Graph.edges.data shape mismatch
 [left]:  (0, 0)
 [right]: (1, 0)''',
     ),
+    # non default obj
+    (
+        [],
+        dict(left=Graph(nodes=[0, 1]), right=Graph(edges=[(0, 1)]), obj='ChildGraph'),
+        AssertionError,
+        '''ChildGraph are different
+
+ChildGraph shape mismatch
+[left]:  (0, 0)
+[right]: (1, 0)''',
+    ),
 ])
 def test_assert_graph_equal_error(args, kwargs, type_error, message_error):
     with pytest.raises(type_error) as e:
@@ -178,6 +189,8 @@ def test_assert_graph_equal_error(args, kwargs, type_error, message_error):
 @pytest.mark.parametrize('args, kwargs', [
     # empty
     ([], dict(left=Graph(), right=Graph())),
+    # obj
+    ([], dict(left=Graph(), right=Graph(), obj='ChildGraph')),
     # non empty nodes
     ([], dict(left=Graph(order=1), right=Graph(order=1))),
     ([], dict(left=Graph(order=2), right=Graph(order=2))),
