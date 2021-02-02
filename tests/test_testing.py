@@ -101,8 +101,8 @@ Edges.data shape mismatch
         '''Edges.data.index node [1] are different
 
 Edges.data.index node [1] values are different (100.0 %)
-[left]:  Int64Index([1], dtype='int64', name='node_1')
-[right]: Int64Index([2], dtype='int64', name='node_1')''',
+[left]:  Int64Index([1], dtype='int64', name='node_to')
+[right]: Int64Index([2], dtype='int64', name='node_to')''',
     ),
     # different type
     (
@@ -112,8 +112,8 @@ Edges.data.index node [1] values are different (100.0 %)
         '''Edges.data.index node [0] are different
 
 Edges.data.index node [0] values are different (100.0 %)
-[left]:  Int64Index([0], dtype='int64', name='node_0')
-[right]: Index(['a'], dtype='object', name='node_0')''',
+[left]:  Int64Index([0], dtype='int64', name='node_from')
+[right]: Index(['a'], dtype='object', name='node_from')''',
     ),
     # different order
     (
@@ -123,8 +123,8 @@ Edges.data.index node [0] values are different (100.0 %)
         '''Edges.data.index node [1] are different
 
 Edges.data.index node [1] values are different (100.0 %)
-[left]:  Int64Index([1, 2], dtype='int64', name='node_1')
-[right]: Int64Index([2, 1], dtype='int64', name='node_1')''',
+[left]:  Int64Index([1, 2], dtype='int64', name='node_to')
+[right]: Int64Index([2, 1], dtype='int64', name='node_to')''',
     ),
 ])
 def test_assert_edges_equal_error(args, kwargs, type_error, message_error):

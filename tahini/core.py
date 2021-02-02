@@ -47,7 +47,6 @@ class Nodes(ContainerDataIndexed):
         return 'node'
 
 
-# https://www.python.org/dev/peps/pep-0484/#annotating-instance-and-class-methods
 TypeEdges = TypeVar('TypeEdges', bound='Edges')
 
 
@@ -55,7 +54,7 @@ class Edges(ContainerDataIndexedMulti):
 
     @staticmethod
     def _names_index() -> Sequence[str]:
-        return ['node_0', 'node_1']
+        return ['node_from', 'node_to']
 
     def get_nodes(self) -> Nodes:
         return Nodes(index=self.data.index.to_frame().stack().drop_duplicates())
@@ -72,16 +71,24 @@ class Edges(ContainerDataIndexedMulti):
         return self
 
 
-# https://www.python.org/dev/peps/pep-0484/#annotating-instance-and-class-methods
+class DirectedEdges(Edges):
+    ...
+
+
+class UndirectedEdges(Edges):
+
+    def _get_flat_index(
+            self,
+    ) -> Index:
+        return self.data.index.to_flat_index().map(set)
+
+
 TypeGraph = TypeVar('TypeGraph', bound='Graph')
 TypeNodesInput = Union[Nodes, TypeIndexInput]
 TypeEdgesInput = Union[Edges, TypeIndexMultiInput]
 
 
 class Graph:
-    """
-    A class for graphs. The main components are nodes and edges.
-    """
 
     def __init__(
             self,
@@ -144,6 +151,7 @@ class Graph:
         self.edges = self.edges.update(index=edges, data=data, **kwargs)
         return self
 
+    # need to keep all three update functions for kwargs
     def update(
             self,
             nodes: Optional[TypeNodesInput] = None,
@@ -229,9 +237,9 @@ class Graph:
         neighbors = (
             self.edges
             .data
-            .reset_index(level='node_1')
-            .groupby(level='node_0')
-            ['node_1']
+            .reset_index(level='node_to')
+            .groupby(level='node_from')
+            ['node_to']
             .apply(list)
             .rename_axis(index='node')
             .rename('neighbors')

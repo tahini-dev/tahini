@@ -376,6 +376,22 @@ def test_container_data_indexed_update(container, args, kwargs, expected):
     pd.testing.assert_frame_equal(container_updated.data, expected)
 
 
+@pytest.mark.parametrize('container, args, kwargs, type_error, type_message', [
+    # item not in container
+    (
+        container_data_indexed_range(1),
+        [],
+        dict(index=0),
+        TypeError,
+        "Index(...) must be called with a collection of some kind, 0 was passed",
+    ),
+])
+def test_container_data_indexed_drop_error(container, args, kwargs, type_error, type_message):
+    with pytest.raises(type_error) as e:
+        container.drop(*args, **kwargs)
+    assert e.value.args[0] == type_message
+
+
 @pytest.mark.parametrize('container, args, kwargs, expected', [
     # empty
     (container_data_indexed_empty(), [], dict(), get_data_frame()),
@@ -385,10 +401,8 @@ def test_container_data_indexed_update(container, args, kwargs, expected):
     (container_data_indexed_range(1), [], dict(index=[0]), get_data_frame(index=pd.Int64Index([]))),
     # another basic example
     (container_data_indexed_range(2), [], dict(index=[0]), get_data_frame(index=[1])),
-    # ignore error if node not found
+    # ignore error if item not found
     (container_data_indexed_empty(), [], dict(index=[1], errors='ignore'), get_data_frame()),
-    # node not in container
-    (container_data_indexed_range(1), [], dict(index=0), get_data_frame(index=pd.Int64Index([]))),
     # multiple container_data_indexed
     (container_data_indexed_range(3), [], dict(index=[1, 2]), get_data_frame(index=[0])),
     # column

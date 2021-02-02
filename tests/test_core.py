@@ -79,9 +79,9 @@ def test_nodes_init(args, kwargs, expected):
 
 def get_data_edges(*args, index=None, **kwargs):
     if index is None:
-        index = pd.MultiIndex(levels=[[], []], codes=[[], []], names=['node_0', 'node_1'])
+        index = pd.MultiIndex(levels=[[], []], codes=[[], []], names=['node_from', 'node_to'])
     else:
-        index = pd.MultiIndex.from_tuples(index, names=['node_0', 'node_1'])
+        index = pd.MultiIndex.from_tuples(index, names=['node_from', 'node_to'])
     return pd.DataFrame(*args, index=index, **kwargs)
 
 
@@ -144,6 +144,15 @@ def test_edges_get_nodes(edges, args, kwargs, expected):
 def test_edges_keep_nodes(edges, args, kwargs, expected):
     edges = edges.keep_nodes(*args, **kwargs)
     tahini.testing.assert_edges_equal(edges, expected)
+
+
+@pytest.mark.parametrize('args, kwargs, expected', [
+    # empty
+    ([], dict(), get_data_edges()),
+])
+def test_directed_edges_init(args, kwargs, expected):
+    edges = tahini.core.DirectedEdges(*args, **kwargs)
+    pd.testing.assert_frame_equal(edges.data, expected)
 
 
 @pytest.mark.parametrize('args, kwargs, nodes_expected, edges_expected', [
