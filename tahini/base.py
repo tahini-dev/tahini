@@ -1,6 +1,8 @@
 from __future__ import annotations
 from collections.abc import Collection, Iterable, Sequence
-from typing import Optional, Union, Dict, Any, Callable, TypeVar, Iterable as TypeIterable
+from typing import (
+    Optional, Union, Dict, Any, Callable, TypeVar, Iterable as TypeIterable, Sequence as TypeSequence, Hashable
+)
 
 from pandas import DataFrame, Series, Index, MultiIndex
 
@@ -11,8 +13,8 @@ __all__ = [
 
 # https://www.python.org/dev/peps/pep-0484/#annotating-instance-and-class-methods
 TypeContainerDataIndexed = TypeVar('TypeContainerDataIndexed', bound='ContainerDataIndexed')
-TypeIndexInput = Union[TypeContainerDataIndexed, Index, Iterable]
-TypeIndexMultiInput = Union[TypeContainerDataIndexed, MultiIndex, TypeIterable[Sequence]]
+TypeIndexInput = Union[TypeContainerDataIndexed, Index, TypeIterable[Hashable]]
+TypeIndexMultiInput = Union[TypeContainerDataIndexed, MultiIndex, TypeIterable[TypeSequence[Hashable]]]
 TypeDataInput = Union[DataFrame, Dict, Iterable]
 TypeMapper = Union[Callable, Dict, Series]
 
@@ -55,6 +57,8 @@ class ContainerDataIndexed(Collection):
 
     def _validate_data(self):
         self.data = self.data.rename_axis(index=self._names_index())
+        if not self.data.index.is_unique:
+            raise ValueError(f"Index needs to be unique for '{self.__class__.__name__}'")
 
     def __repr__(self):
         return f'{self.__class__.__name__}(index={self.data.index})'
@@ -113,8 +117,16 @@ class ContainerDataIndexed(Collection):
             **kwargs,
     ) -> TypeContainerDataIndexed:
         if mapper is not None:
-            self.data.index = self.data.index.map(mapper=mapper, **kwargs)
+            self._map(mapper=mapper, **kwargs)
+        self._validate_data()
         return self
+
+    def _map(
+            self,
+            mapper: TypeMapper,
+            **kwargs,
+    ):
+        self.data.index = self.data.index.map(mapper=mapper, **kwargs)
 
     def copy(
             self,
@@ -151,19 +163,26 @@ class ContainerDataIndexedMulti(ContainerDataIndexed):
         return index
 
     def _validate_data(self):
+
         if not isinstance(self.data.index, MultiIndex):
             self.data = self.data.set_index(self._create_index(self.data.index))
+
         self.data = self.data.rename_axis(index=self._names_index())
 
-    def map(
+        if not self.data.index.to_flat_index().is_unique:
+            raise ValueError(f"Index needs to be unique for '{self.__class__.__name__}'")
+
+    def _map(
             self,
-            mapper: Optional[TypeMapper] = None,
+            mapper: TypeMapper,
             **kwargs,
     ) -> TypeContainerDataIndexed:
-        if mapper is not None:
-            index = [
-                self.data.index.get_level_values(level=level).map(mapper, **kwargs)
-                for level in range(self.data.index.nlevels)
-            ]
-            self.data.index = self._create_index(index=MultiIndex.from_arrays(index))
+
+        index = [
+            self.data.index.get_level_values(level=level).map(mapper, **kwargs)
+            for level in range(self.data.index.nlevels)
+        ]
+
+        self.data.index = self._create_index(index=MultiIndex.from_arrays(index))
+
         return self

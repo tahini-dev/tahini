@@ -407,17 +407,58 @@ def test_graph_repr(graph, expected):
     assert repr_graph == expected
 
 
-@pytest.mark.parametrize('graph, expected', [
+@pytest.mark.parametrize('graph, args, kwargs, expected', [
     # empty
-    (tahini.core.Graph(), pd.Series(dtype='int64', index=pd.Index([], name='node'), name='degree')),
+    (tahini.core.Graph(), [], dict(), pd.Series(dtype='int64', index=pd.Index([], name='node'), name='degree')),
     # non empty
-    (tahini.core.Graph(edges=[(0, 1)]), pd.Series(data=[1, 1], index=pd.Index([0, 1], name='node'), name='degree')),
+    (
+        tahini.core.Graph(edges=[(0, 1)]),
+        [],
+        dict(),
+        pd.Series(data=[1, 1], index=pd.Index([0, 1], name='node'), name='degree'),
+    ),
     # non empty with zero degree
     (
         tahini.core.Graph(nodes=[2], edges=[(0, 1)]),
+        [],
+        dict(),
         pd.Series(data=[1, 1, 0], index=pd.Index([0, 1, 2], name='node'), name='degree'),
     ),
 ])
-def test_graph_degree_by_node(graph, expected):
-    degrees = graph.get_degree_by_node()
+def test_graph_get_degree_by_node(graph, args, kwargs, expected):
+    degrees = graph.get_degree_by_node(*args, **kwargs)
     pd.testing.assert_series_equal(degrees, expected)
+
+
+@pytest.mark.parametrize('graph, args, kwargs, expected', [
+    # empty
+    (tahini.core.Graph(), [], dict(), pd.Series(name='neighbors', index=pd.Index([], name='node'))),
+    # non empty
+    (
+        tahini.core.Graph(edges=[(0, 1)]),
+        [],
+        dict(),
+        pd.Series([[1], None], name='neighbors', index=pd.Index([0, 1], name='node')),
+    ),
+    (
+        tahini.core.Graph(nodes=[2], edges=[(0, 1)]),
+        [],
+        dict(),
+        pd.Series([[1], None, None], name='neighbors', index=pd.Index([0, 1, 2], name='node')),
+    ),
+    (
+        tahini.core.Graph(edges=[(0, 1), (1, 0)]),
+        [],
+        dict(),
+        pd.Series([[1], [0]], name='neighbors', index=pd.Index([0, 1], name='node')),
+    ),
+    (
+        tahini.core.Graph(edges=[(0, 1), (1, 2), (0, 2)]),
+        [],
+        dict(),
+        pd.Series([[1, 2], [2], None], name='neighbors', index=pd.Index([0, 1, 2], name='node')),
+    ),
+])
+def test_graph_get_neighbors(graph, args, kwargs, expected):
+    neighbors = graph.get_neighbors(*args, **kwargs)
+    pd.testing.assert_series_equal(neighbors, expected)

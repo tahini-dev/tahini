@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Optional, Union, TypeVar
 from collections.abc import Sequence
 
-from pandas import Series
+from pandas import Series, Index
 
 from .base import (
     ContainerDataIndexed,
@@ -221,3 +221,26 @@ class Graph:
         )
 
         return degree_by_node
+
+    def get_neighbors(
+            self,
+    ) -> Series:
+
+        neighbors = (
+            self.edges
+            .data
+            .reset_index(level='node_1')
+            .groupby(level='node_0')
+            ['node_1']
+            .apply(list)
+            .rename_axis(index='node')
+            .rename('neighbors')
+        )
+
+        neighbors = (
+            neighbors
+            .combine_first(Series(index=self.nodes.data.index, name='neighbors'))
+            [self.nodes]
+        )
+
+        return neighbors

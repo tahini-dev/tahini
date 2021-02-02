@@ -1,4 +1,4 @@
-from math import nan
+from math import nan, isnan
 
 import pytest
 from hypothesis import given
@@ -10,6 +10,7 @@ import tahini.base
 
 
 @pytest.mark.parametrize('args, kwargs, type_error, message_error', [
+    # either index or data can be given but not both
     (
         [],
         dict(index=[], data=pd.DataFrame()),
@@ -18,6 +19,13 @@ import tahini.base
             "If input 'data' is 'pandas.DataFrame' then input 'index' has to be 'None' for initializing "
             "'ContainerDataIndexed'"
         ),
+    ),
+    # non unique index
+    (
+        [],
+        dict(index=[0, 0, 1]),
+        ValueError,
+        "Index needs to be unique for 'ContainerDataIndexed'",
     ),
 ])
 def test_collection_data_indexed_init_error(args, kwargs, type_error, message_error):
@@ -59,8 +67,6 @@ def get_data_frame(*args, name_index=None, **kwargs) -> pd.DataFrame:
         dict(index=tahini.base.ContainerDataIndexed(data=pd.DataFrame(dict(value=['a', 'b']), index=[0, 1]))),
         get_data_frame(data=dict(value=['a', 'b']), index=[0, 1]),
     ),
-    # index non unique
-    ([], dict(index=[0, 0]), get_data_frame(index=[0, 0])),
     # data dict
     ([], dict(data=dict(value=['a', 'b'])), get_data_frame(dict(value=['a', 'b']))),
     # data records
@@ -102,7 +108,6 @@ elements_non_specific = (
     st.complex_numbers,
     st.dates,
     st.datetimes,
-    st.floats,
     st.fractions,
     st.integers,
     st.none,
@@ -113,22 +118,33 @@ elements_non_specific = (
 )
 
 elements_specific = (
+    # pandas.Timedeltas max and min do not match python standard library datetime.timedelta max and min
     (
         st.timedeltas,
         dict(min_value=pd.Timedelta.min.to_pytimedelta(), max_value=pd.Timedelta.max.to_pytimedelta()),
         lambda x: True,
+        lambda x: True,
     ),
+    # error with decimals not being able to hash snan
     (
         st.decimals,
         dict(),
         lambda x: not x.is_snan(),
+        lambda x: True,
+    ),
+    # cannot have duplicate nans
+    (
+        st.floats,
+        dict(),
+        lambda x: True,
+        lambda container: sum([isnan(item) for item in container]) < 2,
     ),
 )
 
 
 @pytest.mark.parametrize('type_index', types_index)
-@pytest.mark.parametrize('elements, kwargs_elements, filter_elements', [
-    *((item, dict(), lambda x: True) for item in elements_non_specific),
+@pytest.mark.parametrize('elements, kwargs_elements, filter_elements, filter_type_index', [
+    *((item, dict(), lambda x: True, lambda x: True) for item in elements_non_specific),
     *elements_specific,
 ])
 @given(data=st.data())
@@ -137,10 +153,17 @@ def test_collection_data_indexed_init_index_single_elements_type(
         elements,
         kwargs_elements,
         filter_elements,
+        filter_type_index,
         data,
 ):
     container = tahini.base.ContainerDataIndexed(
-        index=data.draw(type_index(elements=elements(**kwargs_elements).filter(filter_elements))),
+        index=data.draw(
+            type_index(
+                elements=elements(**kwargs_elements).filter(filter_elements),
+                unique=True,
+            )
+            .filter(filter_type_index)
+        ),
     )
     assert isinstance(container.data, pd.DataFrame)
 
@@ -159,10 +182,16 @@ def test_collection_data_indexed_init_index_single_elements_type(
             reason='error with decimals not being able to hash snan',
         ),
     ),
+    pytest.param(
+        st.floats,
+        marks=pytest.mark.xfail(
+            reason='error with duplicate nans',
+        ),
+    ),
 ])
 @given(data=st.data())
 def test_collection_data_indexed_init_index_single_elements_type_xfail(type_index, elements, data):
-    container = tahini.base.ContainerDataIndexed(index=data.draw(type_index(elements=elements())))
+    container = tahini.base.ContainerDataIndexed(index=data.draw(type_index(elements=elements(), unique=True)))
     assert isinstance(container.data, pd.DataFrame)
 
 
@@ -177,15 +206,15 @@ def list_elements():
 
 @pytest.mark.parametrize('type_index', types_index)
 @given(data=st.data())
-def test_nodes_init_index_multiple_elements_type(type_index, list_elements, data):
+def test_collection_data_indexed_init_index_multiple_elements_type(type_index, list_elements, data):
     container = tahini.base.ContainerDataIndexed(
-        index=data.draw(type_index(elements=st.one_of(*list_elements)))
+        index=data.draw(type_index(elements=st.one_of(*list_elements), unique=True))
     )
     assert isinstance(container.data, pd.DataFrame)
 
 
 @given(data=data_frames(columns=(columns('A', elements=st.integers())), index=indexes(elements=st.integers())))
-def test_nodes_init_data_data_frame(data):
+def test_collection_data_indexed_init_data_data_frame(data):
     container = tahini.base.ContainerDataIndexed(data=data)
     assert isinstance(container.data, pd.DataFrame)
 
@@ -280,26 +309,6 @@ def test_container_data_indexed_eq(container_left, container_right, expected):
     (container_data_indexed_range(2), [], dict(index=container_data_indexed_range(2)), get_data_frame(index=range(2))),
     # update seems to sort index
     (container_data_indexed_range(2), [], dict(index=[4, 3, 2]), get_data_frame(index=[0, 1, 2, 3, 4])),
-    # non unique index left
-    (
-        tahini.base.ContainerDataIndexed(index=[0, 0, 1]),
-        [],
-        dict(index=[3, 2, 0]),
-        get_data_frame(index=[0, 0, 1, 2, 3]),
-    ),
-    # non unique index right
-    (
-        tahini.base.ContainerDataIndexed(index=[0, 1]),
-        [], dict(index=[3, 2, 0, 0]),
-        get_data_frame(index=[0, 0, 1, 2, 3]),
-    ),
-    # non unique index both
-    (
-        tahini.base.ContainerDataIndexed(index=[0, 0, 1]),
-        [],
-        dict(index=[3, 2, 0, 0]),
-        get_data_frame(index=[0, 0, 0, 0, 1, 2, 3]),
-    ),
     # new column for empty index
     (
         container_data_indexed_empty(),
@@ -448,6 +457,13 @@ def test_container_data_indexed_copy(container, args, kwargs):
             "If input 'data' is 'pandas.DataFrame' then input 'index' has to be 'None' for initializing "
             "'ContainerDataIndexedMulti'"
         ),
+    ),
+    # non unique index
+    (
+        [],
+        dict(index=[(0, 1), (0, 1)]),
+        ValueError,
+        "Index needs to be unique for 'ContainerDataIndexedMulti'",
     ),
     # cannot pass a single dimensional list
     ([], dict(index=[0, 1]), TypeError, "object of type 'int' has no len()"),

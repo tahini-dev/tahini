@@ -58,7 +58,9 @@ def get_positions(
 
     center, dim = _process_parameters(center=center, dim=dim)
 
-    positions_base = globals()[f'_get_positions_layout_{layout}'](graph=graph, dim=dim, **kwargs)
+    function_get_positions_array = globals()[f'_get_positions_layout_{layout}']
+    positions_base = function_get_positions_array(graph=graph, dim=dim, **kwargs)
+
     positions = positions_base + center
 
     df = _array_to_data_frame(array=positions, graph=graph, dim=dim)
