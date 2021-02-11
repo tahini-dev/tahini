@@ -69,6 +69,7 @@ class Edges(ContainerDataIndexedMulti):
 
 class UndirectedEdges(ContainerDataIndexedMultiSets, Edges):
     _names_index = ['node_0', 'node_1']
+    _name_index_internal = 'edge_internal'
 
 
 TypeGraph = TypeVar('TypeGraph', bound='Graph')
