@@ -121,17 +121,17 @@ def test_container_data_indexed__name_index_internal(klass):
 
 @pytest.mark.parametrize('args, kwargs, expected', [
     # empty index
-    ([], dict(index=pd.Index([])), pd.Index([], name=name_index_internal)),
+    ([], dict(index=pd.Index([])), pd.Index([])),
     # non empty index
-    ([], dict(index=pd.Index([0])), pd.Index([0], name=name_index_internal)),
+    ([], dict(index=pd.Index([0])), pd.Index([0])),
     # empty multi index
-    ([], dict(index=pd.MultiIndex.from_arrays([[]])), pd.MultiIndex.from_arrays([[]], names=[name_index_internal])),
-    # todo fix non empty multi index
-    # (
-    #     [],
-    #     dict(index=pd.MultiIndex.from_tuples([(0, 1)])),
-    #     pd.MultiIndex.from_tuples([(0, 1)], names=[name_index_internal]),
-    # ),
+    ([], dict(index=pd.MultiIndex.from_arrays([[]])), pd.MultiIndex.from_arrays([[]])),
+    # non empty multi index
+    (
+        [],
+        dict(index=pd.MultiIndex.from_tuples([(0, 1)])),
+        pd.MultiIndex.from_tuples([(0, 1)]),
+    ),
 ])
 def test_container_data_indexed__create_index_internal(args, kwargs, expected):
     index = tahini.container.ContainerDataIndexed._create_index_internal(*args, **kwargs)
@@ -783,11 +783,11 @@ def test_container_data_indexed_multi__validate_index(args, kwargs, expected):
     # non unique
     ([], dict(index=[(0, 1), (0, 1)]), ValueError, "Index needs to be unique for 'ContainerDataIndexedMulti'"),
     # flat index input
-    ([], dict(index=[0, 1]), ValueError, "Buffer dtype mismatch, expected 'Python object' but got 'long long'"),
+    ([], dict(index=[0, 1]), TypeError, "object of type 'int' has no len()"),
     # flat index input
-    ([], dict(index=[0, 1, 2]), ValueError, "Buffer dtype mismatch, expected 'Python object' but got 'long long'"),
+    ([], dict(index=[0, 1, 2]), TypeError, "object of type 'int' has no len()"),
     # flat index input
-    ([], dict(index=['a', 'b']), TypeError, "Expected tuple, got str"),
+    ([], dict(index=['a', 'b']), ValueError, "Length of names must match number of levels in MultiIndex."),
 ])
 def test_container_data_indexed_multi_init_error(args, kwargs, type_error, message_error):
     with pytest.raises(type_error) as e:
@@ -800,8 +800,8 @@ def test_container_data_indexed_multi_init_error(args, kwargs, type_error, messa
     ([], dict(), get_data_frame_internal_index_multi()),
     # non empty
     ([], dict(index=[(0, 1)]), get_data_frame_internal_index_multi(index=[(0, 1)])),
-    # todo fix this
-    # ([], dict(index=[[0, 1]]), get_data_frame_internal_index_multi(index=[(0, 1)])),
+    # list of lists
+    ([], dict(index=[[0, 1]]), get_data_frame_internal_index_multi(index=[(0, 1)])),
     # non empty
     ([], dict(index=[(0, 1), (0, 2)]), get_data_frame_internal_index_multi(index=[(0, 1), (0, 2)])),
     # order matters
@@ -869,8 +869,8 @@ def test_container_data_indexed_multi_data_testing(container, expected):
         tahini.container.ContainerDataIndexedMulti(),
         [],
         dict(index=[0]),
-        ValueError,
-        "Buffer dtype mismatch, expected 'Python object' but got 'long long'",
+        TypeError,
+        "object of type 'int' has no len()",
     ),
     # index not exist
     (
@@ -995,9 +995,9 @@ def test_container_data_indexed_multi_map(container, args, kwargs, expected):
     # non unique
     ([], dict(index=[(0, 1), (1, 0)]), ValueError, "Index needs to be unique for 'ContainerDataIndexedMultiSets'"),
     # flat index input
-    ([], dict(index=[0, 1]), ValueError, "Buffer dtype mismatch, expected 'Python object' but got 'long long'"),
+    ([], dict(index=[0, 1]), TypeError, "object of type 'int' has no len()"),
     # flat index input
-    ([], dict(index=['a', 'b']), TypeError, "Expected tuple, got str"),
+    ([], dict(index=['a', 'b']), ValueError, "Length of names must match number of levels in MultiIndex."),
 ])
 def test_container_data_indexed_multi_sets_init_error(args, kwargs, type_error, message_error):
     with pytest.raises(type_error) as e:
@@ -1075,8 +1075,8 @@ def test_container_data_indexed_multi_sets_data_testing(container, expected):
         tahini.container.ContainerDataIndexedMultiSets(),
         [],
         dict(index=[0]),
-        ValueError,
-        "Buffer dtype mismatch, expected 'Python object' but got 'long long'",
+        TypeError,
+        "object of type 'int' has no len()",
     ),
     # index not exist
     (

@@ -40,6 +40,9 @@ class ContainerDataIndexed(Collection):
             data = index.data
             index = None
 
+        if index is not None and not isinstance(index, Index):
+            index = self._validate_index(index=index)
+
         if data is not None:
             data = DataFrame(data=data, **kwargs)
             if index is not None:
@@ -96,8 +99,10 @@ class ContainerDataIndexed(Collection):
     @classmethod
     def _validate_index(
             cls,
-            index: Union[Index, MultiIndex],
+            index: Union[TypeIndexInput, TypeIndexMultiInput],
     ) -> Union[Index, MultiIndex]:
+        if not isinstance(index, Index):
+            index = Index(index)
         index_internal = cls._create_index_internal(index=index)
         if not index_internal.is_unique:
             raise ValueError(f"Index needs to be unique for '{cls.__name__}'")
@@ -109,7 +114,7 @@ class ContainerDataIndexed(Collection):
             cls,
             index: Union[Index, MultiIndex],
     ) -> Index:
-        return index.rename(cls._name_index_internal)
+        return index
 
     def drop(
             self,
@@ -214,7 +219,7 @@ class ContainerDataIndexedMulti(ContainerDataIndexed):
     @classmethod
     def _validate_index(
             cls,
-            index: Union[Index, MultiIndex]
+            index: Union[TypeIndexInput, TypeIndexMultiInput]
     ) -> MultiIndex:
 
         num_levels = len(cls._names_index)
@@ -236,4 +241,4 @@ class ContainerDataIndexedMultiSets(ContainerDataIndexedMulti):
             cls,
             index: MultiIndex,
     ) -> Index:
-        return index.to_flat_index().map(frozenset).rename(cls._name_index_internal)
+        return index.to_flat_index().map(frozenset)
