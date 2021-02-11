@@ -4,10 +4,18 @@ tahini package
 Submodules
 ----------
 
-tahini.base module
-------------------
+tahini.accessor module
+----------------------
 
-.. automodule:: tahini.base
+.. automodule:: tahini.accessor
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tahini.container module
+-----------------------
+
+.. automodule:: tahini.container
    :members:
    :undoc-members:
    :show-inheritance:
