@@ -114,7 +114,7 @@ class ContainerDataIndexed(Collection):
             cls,
             index: Union[Index, MultiIndex],
     ) -> Index:
-        return index
+        return index.rename(cls._name_index_internal)
 
     def drop(
             self,
@@ -241,4 +241,4 @@ class ContainerDataIndexedMultiSets(ContainerDataIndexedMulti):
             cls,
             index: MultiIndex,
     ) -> Index:
-        return index.to_flat_index().map(frozenset)
+        return index.to_flat_index().map(frozenset).rename(cls._name_index_internal)
