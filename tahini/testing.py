@@ -2,58 +2,50 @@ from typing import Optional, Union, NoReturn
 
 import pandas as pd
 
-from .core import Nodes, Edges, Graph
+from .container import ContainerDataIndexed
+from .core import Graph
 
-__all__ = ['assert_graph_equal', 'assert_nodes_equal', 'assert_edges_equal']
+__all__ = []
 
 
-def assert_nodes_equal(
-        left: Nodes,
-        right: Nodes,
+def assert_container_equal(
+        left: ContainerDataIndexed,
+        right: ContainerDataIndexed,
+        check_dtype: Optional[bool] = None,
         check_index_type: Optional[Union[bool, str]] = None,
+        check_column_type: Optional[Union[bool, str]] = None,
+        check_like: Optional[bool] = None,
         obj: Optional[str] = None,
         **kwargs,
 ) -> NoReturn:
 
+    if check_dtype is None:
+        check_dtype = False
     if check_index_type is None:
         check_index_type = False
+    if check_column_type is None:
+        check_column_type = False
+    if check_like is None:
+        check_like = True
+
+    assert type(left) is type(right), f"""Types are different
+
+[left]:  {left.__class__.__name__}
+[right]: {right.__class__.__name__}"""
 
     if obj is None:
-        obj = 'Nodes.data'
+        obj = f'{left.__class__.__name__}.data_testing'
 
     pd.testing.assert_frame_equal(
-        left=left.data,
-        right=right.data,
+        left=left.data_testing,
+        right=right.data_testing,
+        check_dtype=check_dtype,
         check_index_type=check_index_type,
+        check_column_type=check_column_type,
+        check_like=check_like,
         obj=obj,
         **kwargs,
     )
-
-
-def assert_edges_equal(
-        left: Edges,
-        right: Edges,
-        check_index_type: Optional[Union[bool, str]] = None,
-        obj: Optional[str] = None,
-        **kwargs,
-) -> NoReturn:
-
-    if check_index_type is None:
-        check_index_type = False
-
-    if obj is None:
-        obj = 'Edges.data'
-
-    try:
-        pd.testing.assert_frame_equal(
-            left=left.data,
-            right=right.data,
-            check_index_type=check_index_type,
-            obj=obj,
-            **kwargs,
-        )
-    except AssertionError as e:
-        raise AssertionError(e.args[0].replace('MultiIndex level', f'{obj}.index node'))
 
 
 def assert_graph_equal(
@@ -69,9 +61,9 @@ def assert_graph_equal(
         flag_obj = False
 
     if not flag_obj:
-        obj = 'Graph.nodes.data'
-    assert_nodes_equal(left=left.nodes, right=right.nodes, obj=obj, **kwargs)
+        obj = f'{left.__class__.__name__}.nodes.data_testing'
+    assert_container_equal(left=left.nodes, right=right.nodes, obj=obj, **kwargs)
 
     if not flag_obj:
-        obj = 'Graph.edges.data'
-    assert_edges_equal(left=left.edges, right=right.edges, obj=obj, **kwargs)
+        obj = f'{left.__class__.__name__}.edges.data_testing'
+    assert_container_equal(left=left.edges, right=right.edges, obj=obj, **kwargs)

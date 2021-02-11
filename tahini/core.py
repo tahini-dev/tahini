@@ -1,24 +1,34 @@
 from __future__ import annotations
 from typing import Optional, Union, TypeVar
-from collections.abc import Sequence
 
-from pandas import Series, Index
+from pandas import Series
 
-from .base import (
+from .container import (
     ContainerDataIndexed,
     ContainerDataIndexedMulti,
-    TypeIndexMultiInput,
+    ContainerDataIndexedMultiSets,
     TypeIndexInput,
+    TypeIndexMultiInput,
     TypeDataInput,
     TypeMapper,
 )
 
 __all__ = [
-    'Nodes', 'Edges', 'Graph', 'TypeGraph', 'TypeNodesInput', 'TypeEdgesInput',
+    'Graph',
+    'UndirectedGraph',
+    'Nodes',
+    'Edges',
+    'UndirectedEdges',
+    'TypeNodesInput',
+    'TypeEdgesInput',
+    'TypeDataInput',
 ]
 
 
 class Nodes(ContainerDataIndexed):
+
+    _names_index = ['node']
+    _name_index_internal = 'node_internal'
 
     def __init__(
             self,
@@ -28,23 +38,10 @@ class Nodes(ContainerDataIndexed):
             **kwargs,
     ):
 
-        if (index is not None and order is not None) or (data is not None and order is not None):
-            raise ValueError(
-                f"Inputs for '{self.__class__.__name__}' can either be empty or contain "
-                f"'index', "
-                f"'data', "
-                f"'index' and 'data' "
-                f"or 'order'"
-            )
-
         if order is not None:
             index = range(order)
 
         super().__init__(index=index, data=data, **kwargs)
-
-    @staticmethod
-    def _names_index() -> str:
-        return 'node'
 
 
 TypeEdges = TypeVar('TypeEdges', bound='Edges')
@@ -52,12 +49,11 @@ TypeEdges = TypeVar('TypeEdges', bound='Edges')
 
 class Edges(ContainerDataIndexedMulti):
 
-    @staticmethod
-    def _names_index() -> Sequence[str]:
-        return ['node_from', 'node_to']
+    _names_index = ['node_from', 'node_to']
+    _name_index_internal = 'edge_internal'
 
     def get_nodes(self) -> Nodes:
-        return Nodes(index=self.data.index.to_frame().stack().drop_duplicates())
+        return Nodes(index=self.data_internal[self._names_index].stack().drop_duplicates())
 
     def keep_nodes(
             self,
@@ -65,22 +61,14 @@ class Edges(ContainerDataIndexedMulti):
     ) -> TypeEdges:
         if nodes is not None:
             nodes = Nodes(index=nodes)
-            self.data = self.data[
-                lambda x: x.index.get_level_values(0).isin(nodes) & x.index.get_level_values(1).isin(nodes)
+            self.data = self.data_internal[
+                lambda x: x[self._names_index[0]].isin(nodes) & x[self._names_index[1]].isin(nodes)
             ]
         return self
 
 
-class DirectedEdges(Edges):
-    ...
-
-
-class UndirectedEdges(Edges):
-
-    def _get_flat_index(
-            self,
-    ) -> Index:
-        return self.data.index.to_flat_index().map(set)
+class UndirectedEdges(ContainerDataIndexedMultiSets, Edges):
+    _names_index = ['node_0', 'node_1']
 
 
 TypeGraph = TypeVar('TypeGraph', bound='Graph')
@@ -89,6 +77,8 @@ TypeEdgesInput = Union[Edges, TypeIndexMultiInput]
 
 
 class Graph:
+
+    _type_edges = Edges
 
     def __init__(
             self,
@@ -100,7 +90,7 @@ class Graph:
             **kwargs,
     ):
         self._nodes = Nodes(index=nodes, data=nodes_data, order=order, **kwargs)
-        self._edges = Edges(index=edges, data=edges_data, **kwargs)
+        self._edges = self._type_edges(index=edges, data=edges_data, **kwargs)
         self._nodes = self._update_nodes_from_edges()
 
     @property
@@ -124,7 +114,7 @@ class Graph:
             self,
             value: TypeEdgesInput,
     ):
-        self._edges = Edges(index=value)
+        self._edges = self._type_edges(index=value)
         self._update_nodes_from_edges()
 
     def _update_nodes_from_edges(self) -> Nodes:
@@ -252,3 +242,7 @@ class Graph:
         )
 
         return neighbors
+
+
+class UndirectedGraph(Graph):
+    _type_edges = UndirectedEdges

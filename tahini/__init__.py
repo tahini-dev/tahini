@@ -5,8 +5,8 @@ __version__ = _get_distribution('tahini').version
 
 from . import (
     core,
-    plot,
     testing,
+    # plot,
 )
 
 from .core import (
