@@ -43,6 +43,7 @@ def assert_container_equal(
         check_index_type=check_index_type,
         check_column_type=check_column_type,
         check_like=check_like,
+        check_names=True,
         obj=obj,
         **kwargs,
     )
