@@ -5,7 +5,7 @@ import pandas as pd
 from .container import ContainerDataIndexed
 from .core import Graph
 
-__all__ = []
+__all__ = ['assert_graph_equal', 'assert_container_equal']
 
 
 def assert_container_equal(

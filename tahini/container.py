@@ -109,12 +109,11 @@ class ContainerDataIndexed(Collection):
         index.names = cls._names_index
         return index
 
-    @classmethod
+    @staticmethod
     def _create_index_internal(
-            cls,
             index: Union[Index, MultiIndex],
     ) -> Index:
-        return index.rename(cls._name_index_internal)
+        return index
 
     def drop(
             self,
@@ -209,12 +208,11 @@ class ContainerDataIndexedMulti(ContainerDataIndexed):
     ):
         super().__init__(index=index, **kwargs)
 
-    @classmethod
+    @staticmethod
     def _create_index_internal(
-            cls,
             index: MultiIndex,
     ) -> Index:
-        return index.to_flat_index().rename(cls._name_index_internal)
+        return index.to_flat_index()
 
     @classmethod
     def _validate_index(
@@ -236,9 +234,8 @@ class ContainerDataIndexedMulti(ContainerDataIndexed):
 
 class ContainerDataIndexedMultiSets(ContainerDataIndexedMulti):
 
-    @classmethod
+    @staticmethod
     def _create_index_internal(
-            cls,
             index: MultiIndex,
     ) -> Index:
-        return index.to_flat_index().map(frozenset).rename(cls._name_index_internal)
+        return index.to_flat_index().map(frozenset)

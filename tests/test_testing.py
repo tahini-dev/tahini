@@ -47,8 +47,8 @@ ContainerDataIndexed.data_testing shape mismatch
         """ContainerDataIndexed.data_testing.index are different
 
 ContainerDataIndexed.data_testing.index values are different (100.0 %)
-[left]:  Int64Index([0], dtype='int64', name='index_internal')
-[right]: Int64Index([1], dtype='int64', name='index_internal')""",
+[left]:  Int64Index([0], dtype='int64')
+[right]: Int64Index([1], dtype='int64')""",
     ),
     # different index type
     (
@@ -61,8 +61,8 @@ ContainerDataIndexed.data_testing.index values are different (100.0 %)
         """ContainerDataIndexed.data_testing.index are different
 
 ContainerDataIndexed.data_testing.index values are different (100.0 %)
-[left]:  Int64Index([0], dtype='int64', name='index_internal')
-[right]: Index(['a'], dtype='object', name='index_internal')""",
+[left]:  Int64Index([0], dtype='int64')
+[right]: Index(['a'], dtype='object')""",
     ),
     # different order
     (
@@ -75,8 +75,8 @@ ContainerDataIndexed.data_testing.index values are different (100.0 %)
         """ContainerDataIndexedMulti.data_testing.index are different
 
 ContainerDataIndexedMulti.data_testing.index values are different (100.0 %)
-[left]:  Index([(0, 1)], dtype='object', name='index_internal')
-[right]: Index([(1, 0)], dtype='object', name='index_internal')""",
+[left]:  Index([(0, 1)], dtype='object')
+[right]: Index([(1, 0)], dtype='object')""",
     ),
 ])
 def test_assert_container_equal_error(args, kwargs, type_error, message_error):
@@ -205,8 +205,8 @@ Graph.edges.data_testing shape mismatch
         '''Graph.edges.data_testing.index are different
 
 Graph.edges.data_testing.index values are different (100.0 %)
-[left]:  Index([(0, 1)], dtype='object', name='edge_internal')
-[right]: Index([(1, 0)], dtype='object', name='edge_internal')''',
+[left]:  Index([(0, 1)], dtype='object')
+[right]: Index([(1, 0)], dtype='object')''',
     ),
     # non default obj
     (
