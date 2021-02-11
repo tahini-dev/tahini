@@ -78,6 +78,7 @@ class ContainerDataIndexed(Collection):
             .assign(**{self._name_index_internal: lambda x: self._create_index_internal(x.index)})
             .reset_index()
             .set_index(self._name_index_internal)
+            .rename_axis(index=self._name_index_internal)
         )
 
         self._data = data
