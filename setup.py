@@ -5,7 +5,7 @@ with open('README.md', 'r') as fh:
 
 setup(
     name='tahini',
-    version='2021.01.1',
+    version='2021.02.1',
     author='tahini-dev',
     author_email='tahini.dev@gmail.com',
     description='Python package for graph theory',
