@@ -683,6 +683,107 @@ def test_graph_path(klass, args, kwargs, expected):
     tahini.testing.assert_graph_equal(graph, expected)
 
 
+@pytest.mark.parametrize('klass, args, kwargs, type_error, message_error', [
+    # trivial order
+    (tahini.core.Graph, [], dict(order=0), ValueError, "Inputs 'order' or length of 'nodes' has to be >= 3 for cycle"),
+    (tahini.core.Graph, [], dict(order=1), ValueError, "Inputs 'order' or length of 'nodes' has to be >= 3 for cycle"),
+    (tahini.core.Graph, [], dict(order=2), ValueError, "Inputs 'order' or length of 'nodes' has to be >= 3 for cycle"),
+    (
+        tahini.core.UndirectedGraph,
+        [],
+        dict(order=0),
+        ValueError,
+        "Inputs 'order' or length of 'nodes' has to be >= 3 for cycle",
+    ),
+    (
+        tahini.core.UndirectedGraph,
+        [],
+        dict(order=1),
+        ValueError,
+        "Inputs 'order' or length of 'nodes' has to be >= 3 for cycle",
+    ),
+    (
+        tahini.core.UndirectedGraph,
+        [],
+        dict(order=2),
+        ValueError,
+        "Inputs 'order' or length of 'nodes' has to be >= 3 for cycle",
+    ),
+    # trivial nodes
+    (tahini.core.Graph, [], dict(nodes=[]), ValueError, "Inputs 'order' or length of 'nodes' has to be >= 3 for cycle"),
+    (
+        tahini.core.Graph,
+        [],
+        dict(nodes=[0]),
+        ValueError,
+        "Inputs 'order' or length of 'nodes' has to be >= 3 for cycle",
+    ),
+    (
+        tahini.core.Graph,
+        [],
+        dict(nodes=[0, 1]),
+        ValueError,
+        "Inputs 'order' or length of 'nodes' has to be >= 3 for cycle",
+    ),
+    (
+            tahini.core.UndirectedGraph,
+            [],
+            dict(nodes=[]),
+            ValueError,
+            "Inputs 'order' or length of 'nodes' has to be >= 3 for cycle",
+    ),
+    (
+            tahini.core.UndirectedGraph,
+            [],
+            dict(nodes=[0]),
+            ValueError,
+            "Inputs 'order' or length of 'nodes' has to be >= 3 for cycle",
+    ),
+    (
+            tahini.core.UndirectedGraph,
+            [],
+            dict(nodes=[0, 1]),
+            ValueError,
+            "Inputs 'order' or length of 'nodes' has to be >= 3 for cycle",
+    ),
+])
+def test_graph_cycle_error(klass, args, kwargs, type_error, message_error):
+    with pytest.raises(type_error) as e:
+        klass.cycle(*args, **kwargs)
+    assert e.value.args[0] == message_error
+
+
+@pytest.mark.parametrize('klass, args, kwargs, expected', [
+    # non trivial order
+    (tahini.core.Graph, [], dict(order=3), tahini.core.Graph(edges=[(0, 1), (1, 2), (2, 0)])),
+    (tahini.core.UndirectedGraph, [], dict(order=3), tahini.core.UndirectedGraph(edges=[(0, 1), (1, 2), (2, 0)])),
+    # order and nodes
+    (
+        tahini.core.Graph,
+        [],
+        dict(order=3, nodes=['a', 'b', 'c']),
+        tahini.core.Graph(edges=[('a', 'b'), ('b', 'c'), ('c', 'a')]),
+    ),
+    (
+        tahini.core.UndirectedGraph,
+        [],
+        dict(order=3, nodes=['a', 'b', 'c']),
+        tahini.core.UndirectedGraph(edges=[('a', 'b'), ('b', 'c'), ('c', 'a')]),
+    ),
+    # non trivial nodes
+    (tahini.core.Graph, [], dict(nodes=['a', 'b', 'c']), tahini.core.Graph(edges=[('a', 'b'), ('b', 'c'), ('c', 'a')])),
+    (
+        tahini.core.UndirectedGraph,
+        [],
+        dict(nodes=['a', 'b', 'c']),
+        tahini.core.UndirectedGraph(edges=[('a', 'b'), ('b', 'c'), ('c', 'a')]),
+    ),
+])
+def test_graph_cycle(klass, args, kwargs, expected):
+    graph = klass.cycle(*args, **kwargs)
+    tahini.testing.assert_graph_equal(graph, expected)
+
+
 @pytest.mark.parametrize('klass, args, kwargs, expected', [
     # trivial order
     (tahini.core.Graph, [], dict(order=0), tahini.core.Graph()),

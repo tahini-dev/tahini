@@ -262,6 +262,31 @@ class Graph:
         return graph
 
     @classmethod
+    def cycle(
+            cls,
+            order: Optional[int] = None,
+            nodes: Optional[Nodes] = None,
+    ) -> TypeGraph:
+
+        if order is None:
+            order = len(nodes)
+
+        if order < 3:
+            raise ValueError("Inputs 'order' or length of 'nodes' has to be >= 3 for cycle")
+
+        nodes_left = range(order)
+        nodes_right = list(range(1, order))
+        nodes_right.append(0)
+        edges = MultiIndex.from_arrays([nodes_left, nodes_right])
+
+        graph = cls(order=order, edges=edges)
+
+        if nodes is not None:
+            graph = graph.map_nodes(mapper=dict(zip(range(order), Nodes(index=nodes))))
+
+        return graph
+
+    @classmethod
     def star(
             cls,
             order: Optional[int] = None,
