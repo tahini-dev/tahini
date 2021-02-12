@@ -279,6 +279,13 @@ class Graph:
         return graph
 
     @classmethod
+    def _get_unique_edges(
+            cls,
+            edges: MultiIndex,
+    ) -> MultiIndex:
+        return edges
+
+    @classmethod
     def complete(
             cls,
             order: Optional[int] = None,
@@ -290,6 +297,7 @@ class Graph:
 
         edges = MultiIndex.from_product([range(order)] * 2)
         edges = edges[edges.get_level_values(0) != edges.get_level_values(1)]
+        edges = cls._get_unique_edges(edges=edges)
 
         graph = cls(order=order, edges=edges)
 
@@ -301,3 +309,10 @@ class Graph:
 
 class UndirectedGraph(Graph):
     _type_edges = UndirectedEdges
+
+    @classmethod
+    def _get_unique_edges(
+            cls,
+            edges: MultiIndex,
+    ) -> MultiIndex:
+        return edges.map(frozenset).drop_duplicates().map(tuple)
