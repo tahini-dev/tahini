@@ -9,12 +9,4 @@ from . import (
     plot,
 )
 
-from .core import (
-    Graph,
-)
-
-from .factory import (
-    get_path,
-    get_star,
-    get_complete,
-)
+from .core import *

@@ -646,3 +646,116 @@ def test_graph_get_degree_by_node(graph, args, kwargs, expected):
 def test_graph_get_neighbors(graph, args, kwargs, expected):
     neighbors = graph.get_neighbors(*args, **kwargs)
     pd.testing.assert_series_equal(neighbors, expected, check_index_type=False)
+
+
+@pytest.mark.parametrize('klass, args, kwargs, expected', [
+    # trivial order
+    (tahini.core.Graph, [], dict(order=0), tahini.core.Graph()),
+    (tahini.core.Graph, [], dict(order=1), tahini.core.Graph(order=1)),
+    (tahini.core.UndirectedGraph, [], dict(order=0), tahini.core.UndirectedGraph()),
+    (tahini.core.UndirectedGraph, [], dict(order=1), tahini.core.UndirectedGraph(order=1)),
+    # non trivial order
+    (tahini.core.Graph, [], dict(order=2), tahini.core.Graph(edges=[(0, 1)])),
+    (tahini.core.Graph, [], dict(order=3), tahini.core.Graph(edges=[(0, 1), (1, 2)])),
+    (tahini.core.UndirectedGraph, [], dict(order=2), tahini.core.UndirectedGraph(edges=[(0, 1)])),
+    (tahini.core.UndirectedGraph, [], dict(order=3), tahini.core.UndirectedGraph(edges=[(0, 1), (1, 2)])),
+    # order and nodes
+    (tahini.core.Graph, [], dict(order=2, nodes=['a', 'b']), tahini.core.Graph(edges=[('a', 'b')])),
+    (tahini.core.Graph, [], dict(order=3, nodes=['a', 'b', 'c']), tahini.core.Graph(edges=[('a', 'b'), ('b', 'c')])),
+    (tahini.core.UndirectedGraph, [], dict(order=2, nodes=['a', 'b']), tahini.core.UndirectedGraph(edges=[('a', 'b')])),
+    (
+        tahini.core.UndirectedGraph,
+        [],
+        dict(order=3, nodes=['a', 'b', 'c']),
+        tahini.core.UndirectedGraph(edges=[('a', 'b'), ('b', 'c')]),
+    ),
+    # trivial nodes
+    (tahini.core.Graph, [], dict(nodes=[]), tahini.core.Graph()),
+    (tahini.core.Graph, [], dict(nodes=['a']), tahini.core.Graph(nodes=['a'])),
+    (tahini.core.UndirectedGraph, [], dict(nodes=[]), tahini.core.UndirectedGraph()),
+    (tahini.core.UndirectedGraph, [], dict(nodes=['a']), tahini.core.UndirectedGraph(nodes=['a'])),
+    # non trivial nodes
+    (tahini.core.Graph, [], dict(nodes=['a', 'b']), tahini.core.Graph(edges=[('a', 'b')])),
+    (tahini.core.UndirectedGraph, [], dict(nodes=['a', 'b']), tahini.core.UndirectedGraph(edges=[('a', 'b')])),
+])
+def test_graph_path(klass, args, kwargs, expected):
+    graph = klass.path(*args, **kwargs)
+    tahini.testing.assert_graph_equal(graph, expected)
+
+
+@pytest.mark.parametrize('klass, args, kwargs, expected', [
+    # trivial order
+    (tahini.core.Graph, [], dict(order=0), tahini.core.Graph()),
+    (tahini.core.Graph, [], dict(order=1), tahini.core.Graph(order=1)),
+    (tahini.core.UndirectedGraph, [], dict(order=0), tahini.core.UndirectedGraph()),
+    (tahini.core.UndirectedGraph, [], dict(order=1), tahini.core.UndirectedGraph(order=1)),
+    # non trivial order
+    (tahini.core.Graph, [], dict(order=2), tahini.core.Graph(edges=[(0, 1)])),
+    (tahini.core.Graph, [], dict(order=3), tahini.core.Graph(edges=[(0, 1), (0, 2)])),
+    (tahini.core.UndirectedGraph, [], dict(order=2), tahini.core.UndirectedGraph(edges=[(0, 1)])),
+    (tahini.core.UndirectedGraph, [], dict(order=3), tahini.core.UndirectedGraph(edges=[(0, 1), (0, 2)])),
+    # order and nodes
+    (tahini.core.Graph, [], dict(order=2, nodes=['a', 'b']), tahini.core.Graph(edges=[('a', 'b')])),
+    (tahini.core.Graph, [], dict(order=3, nodes=['a', 'b', 'c']), tahini.core.Graph(edges=[('a', 'b'), ('a', 'c')])),
+    (tahini.core.UndirectedGraph, [], dict(order=2, nodes=['a', 'b']), tahini.core.UndirectedGraph(edges=[('a', 'b')])),
+    (
+        tahini.core.UndirectedGraph,
+        [],
+        dict(order=3, nodes=['a', 'b', 'c']),
+        tahini.core.UndirectedGraph(edges=[('a', 'b'), ('a', 'c')]),
+    ),
+    # trivial nodes
+    (tahini.core.Graph, [], dict(nodes=[]), tahini.core.Graph()),
+    (tahini.core.Graph, [], dict(nodes=['a']), tahini.core.Graph(nodes=['a'])),
+    (tahini.core.UndirectedGraph, [], dict(nodes=[]), tahini.core.UndirectedGraph()),
+    (tahini.core.UndirectedGraph, [], dict(nodes=['a']), tahini.core.UndirectedGraph(nodes=['a'])),
+    # non trivial nodes
+    (tahini.core.Graph, [], dict(nodes=['a', 'b']), tahini.core.Graph(edges=[('a', 'b')])),
+    (tahini.core.Graph, [], dict(nodes=['a', 'b', 'c']), tahini.core.Graph(edges=[('a', 'b'), ('a', 'c')])),
+    (tahini.core.UndirectedGraph, [], dict(nodes=['a', 'b']), tahini.core.UndirectedGraph(edges=[('a', 'b')])),
+    (
+        tahini.core.UndirectedGraph,
+        [],
+        dict(nodes=['a', 'b', 'c']),
+        tahini.core.UndirectedGraph(edges=[('a', 'b'), ('a', 'c')]),
+    ),
+])
+def test_graph_star(klass, args, kwargs, expected):
+    graph = klass.star(*args, **kwargs)
+    tahini.testing.assert_graph_equal(graph, expected)
+
+
+@pytest.mark.parametrize('klass, args, kwargs, expected', [
+    # trivial order
+    (tahini.core.Graph, [], dict(order=0), tahini.core.Graph()),
+    (tahini.core.Graph, [], dict(order=1), tahini.core.Graph(order=1)),
+    (tahini.core.UndirectedGraph, [], dict(order=0), tahini.core.UndirectedGraph()),
+    (tahini.core.UndirectedGraph, [], dict(order=1), tahini.core.UndirectedGraph(order=1)),
+    # non trivial order
+    (tahini.core.Graph, [], dict(order=2), tahini.core.Graph(edges=[(0, 1), (1, 0)])),
+    # todo fix the following and add remaining tests
+    # (tahini.core.UndirectedGraph, [], dict(order=2), tahini.core.UndirectedGraph(edges=[(0, 1)])),
+    (tahini.core.Graph, [], dict(order=3), tahini.core.Graph(edges=[(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)])),
+    # order and nodes
+    (tahini.core.Graph, [], dict(order=2, nodes=['a', 'b']), tahini.core.Graph(edges=[('a', 'b'), ('b', 'a')])),
+    (
+        tahini.core.Graph,
+        [],
+        dict(order=3, nodes=['a', 'b', 'c']),
+        tahini.core.Graph(edges=[('a', 'b'), ('a', 'c'), ('b', 'a'), ('b', 'c'), ('c', 'a'), ('c', 'b')]),
+    ),
+    # trivial nodes
+    (tahini.core.Graph, [], dict(nodes=[]), tahini.core.Graph()),
+    (tahini.core.Graph, [], dict(nodes=['a']), tahini.core.Graph(nodes=['a'])),
+    # non trivial nodes
+    (tahini.core.Graph, [], dict(nodes=['a', 'b']), tahini.core.Graph(edges=[('a', 'b'), ('b', 'a')])),
+    (
+        tahini.core.Graph,
+        [],
+        dict(nodes=['a', 'b', 'c']),
+        tahini.core.Graph(edges=[('a', 'b'), ('a', 'c'), ('b', 'a'), ('b', 'c'), ('c', 'a'), ('c', 'b')]),
+    ),
+])
+def test_graph_complete(klass, args, kwargs, expected):
+    graph = klass.complete(*args, **kwargs)
+    tahini.testing.assert_graph_equal(graph, expected)

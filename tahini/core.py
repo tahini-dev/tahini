@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional, Union, TypeVar
 
-from pandas import Series
+from pandas import Series, MultiIndex
 
 from .container import (
     ContainerDataIndexed,
@@ -243,6 +243,60 @@ class Graph:
         )
 
         return neighbors
+
+    @classmethod
+    def path(
+            cls,
+            order: Optional[int] = None,
+            nodes: Optional[Nodes] = None,
+    ) -> TypeGraph:
+
+        if order is None:
+            order = len(nodes)
+
+        graph = cls(order=order, edges=MultiIndex.from_arrays([range(order - 1), range(1, order)]))
+
+        if nodes is not None:
+            graph = graph.map_nodes(mapper=dict(zip(range(order), Nodes(index=nodes))))
+
+        return graph
+
+    @classmethod
+    def star(
+            cls,
+            order: Optional[int] = None,
+            nodes: Optional[Nodes] = None,
+    ) -> TypeGraph:
+
+        if order is None:
+            order = len(nodes)
+
+        graph = cls(order=order, edges=MultiIndex.from_arrays([[0] * (order - 1), range(1, order)]))
+
+        if nodes is not None:
+            graph = graph.map_nodes(mapper=dict(zip(range(order), Nodes(index=nodes))))
+
+        return graph
+
+    @classmethod
+    def complete(
+            cls,
+            order: Optional[int] = None,
+            nodes: Optional[Nodes] = None,
+    ) -> TypeGraph:
+
+        if order is None:
+            order = len(nodes)
+
+        edges = MultiIndex.from_product([range(order)] * 2)
+        edges = edges[edges.get_level_values(0) != edges.get_level_values(1)]
+
+        graph = cls(order=order, edges=edges)
+
+        if nodes is not None:
+            graph = graph.map_nodes(mapper=dict(zip(range(order), Nodes(index=nodes))))
+
+        return graph
 
 
 class UndirectedGraph(Graph):
