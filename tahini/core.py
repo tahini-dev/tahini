@@ -52,7 +52,8 @@ class Edges(ContainerDataIndexedMulti):
     _names_index = ['node_from', 'node_to']
     _name_index_internal = 'edge_internal'
 
-    def get_nodes(self) -> Nodes:
+    @property
+    def nodes(self) -> Nodes:
         return Nodes(index=self.data_internal[self._names_index].stack().drop_duplicates())
 
     def keep_nodes(
@@ -136,7 +137,7 @@ class Graph:
         return self
 
     def _update_nodes_from_edges(self) -> Nodes:
-        return self.nodes.update(index=self.edges.get_nodes())
+        return self.nodes.update(index=self.edges.nodes)
 
     def _update_edges_from_nodes(self) -> Edges:
         return self.edges.keep_nodes(nodes=self.nodes)

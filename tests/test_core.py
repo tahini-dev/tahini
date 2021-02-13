@@ -59,8 +59,8 @@ def test_undirected_edges_init_simple(args, kwargs):
     # order matters
     (tahini.core.Edges(index=[(0, 2), (0, 1)]), [], dict(), tahini.core.Nodes(index=[0, 2, 1])),
 ])
-def test_edges_get_nodes(edges, args, kwargs, expected):
-    nodes = edges.get_nodes(*args, **kwargs)
+def test_edges_nodes(edges, args, kwargs, expected):
+    nodes = edges.nodes
     tahini.testing.assert_container_equal(nodes, expected)
 
 
