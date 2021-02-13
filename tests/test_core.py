@@ -182,6 +182,24 @@ def test_undirected_graph_init(args, kwargs, nodes_expected, edges_expected):
     tahini.testing.assert_container_equal(graph.edges, edges_expected)
 
 
+@pytest.mark.parametrize('graph, args, kwargs, expected', [
+    # empty
+    (tahini.core.Graph(), [], dict(), tahini.core.Graph()),
+    (tahini.core.Graph(), [], dict(nodes=lambda x: x.nodes), tahini.core.Graph()),
+    (tahini.core.Graph(), [], dict(nodes=lambda x: x.edges), tahini.core.Graph()),
+    # non empty inputs
+    (tahini.core.Graph(), [], dict(nodes=[0]), tahini.core.Graph(nodes=[0])),
+    (tahini.core.Graph(), [], dict(edges=[(0, 1)]), tahini.core.Graph(edges=[(0, 1)])),
+    # non empty graph
+    (tahini.core.Graph(nodes=[0]), [], dict(nodes=[1]), tahini.core.Graph(nodes=[1])),
+    (tahini.core.Graph(edges=[(0, 1)]), [], dict(edges=[(0, 2)]), tahini.core.Graph(nodes=[1], edges=[(0, 2)])),
+
+])
+def test_graph_assign(graph, args, kwargs, expected):
+    graph_assigned = graph.assign(*args, **kwargs)
+    tahini.testing.assert_graph_equal(graph_assigned, expected)
+
+
 @pytest.mark.parametrize('graph, edges, args, kwargs, nodes_expected, graph_expected', [
     # empty
     (
@@ -376,16 +394,6 @@ def test_graph_update_edges(graph, args, kwargs, expected):
 
 
 @pytest.mark.parametrize('graph, args, kwargs, expected', [
-    # empty
-    (tahini.core.Graph(), [], dict(), tahini.core.Graph()),
-    (tahini.core.UndirectedGraph(), [], dict(), tahini.core.UndirectedGraph()),
-])
-def test_graph_update(graph, args, kwargs, expected):
-    graph_updated = graph.update(*args, **kwargs)
-    tahini.testing.assert_graph_equal(graph_updated, expected)
-
-
-@pytest.mark.parametrize('graph, args, kwargs, expected', [
     # empty all
     (tahini.core.Graph(), [], dict(), tahini.core.Graph()),
     (tahini.core.UndirectedGraph(), [], dict(), tahini.core.UndirectedGraph()),
@@ -453,40 +461,6 @@ def test_graph_drop_nodes(graph, args, kwargs, expected):
 ])
 def test_graph_drop_edges(graph, args, kwargs, expected):
     graph_dropped = graph.drop_edges(*args, **kwargs)
-    tahini.testing.assert_graph_equal(graph_dropped, expected)
-
-
-@pytest.mark.parametrize('graph, args, kwargs, expected', [
-    # empty all
-    (tahini.core.Graph(), [], dict(), tahini.core.Graph()),
-    (tahini.core.UndirectedGraph(), [], dict(), tahini.core.UndirectedGraph()),
-    # empty lists
-    (tahini.core.Graph(), [], dict(nodes=[], edges=[]), tahini.core.Graph()),
-    (tahini.core.UndirectedGraph(), [], dict(nodes=[], edges=[]), tahini.core.UndirectedGraph()),
-    # empty inputs
-    (tahini.core.Graph(edges=[(0, 1), (1, 2)]), [], dict(), tahini.core.Graph(edges=[(0, 1), (1, 2)])),
-    (
-        tahini.core.UndirectedGraph(edges=[(0, 1), (1, 2)]),
-        [],
-        dict(),
-        tahini.core.UndirectedGraph(edges=[(0, 1), (1, 2)]),
-    ),
-    # non empty
-    (
-        tahini.core.Graph(edges=[(0, 1), (1, 2), (1, 3)]),
-        [],
-        dict(nodes=[0], edges=[(1, 2)]),
-        tahini.core.Graph(nodes=[1, 2, 3], edges=[(1, 3)]),
-    ),
-    (
-        tahini.core.UndirectedGraph(edges=[(0, 1), (1, 2), (1, 3)]),
-        [],
-        dict(nodes=[0], edges=[(1, 2)]),
-        tahini.core.UndirectedGraph(nodes=[1, 2, 3], edges=[(1, 3)]),
-    ),
-])
-def test_graph_drop(graph, args, kwargs, expected):
-    graph_dropped = graph.drop(*args, **kwargs)
     tahini.testing.assert_graph_equal(graph_dropped, expected)
 
 

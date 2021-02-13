@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional, Union, TypeVar
+from typing import Optional, Union, TypeVar, Callable
 
 from pandas import Series, MultiIndex
 
@@ -118,6 +118,23 @@ class Graph:
         self._edges = self._type_edges(index=value)
         self._update_nodes_from_edges()
 
+    def assign(
+            self,
+            nodes: Optional[Union[Nodes, Callable]] = None,
+            edges: Optional[Union[Edges, Callable]] = None,
+    ) -> TypeGraph:
+        if nodes is not None:
+            if isinstance(nodes, Callable):
+                nodes = nodes(self)
+            self.nodes = nodes
+
+        if edges is not None:
+            if isinstance(edges, Callable):
+                edges = edges(self)
+            self.edges = edges
+
+        return self
+
     def _update_nodes_from_edges(self) -> Nodes:
         return self.nodes.update(index=self.edges.get_nodes())
 
@@ -130,8 +147,7 @@ class Graph:
             data: Optional[TypeDataInput] = None,
             **kwargs,
     ) -> TypeGraph:
-        self.nodes = self.nodes.update(index=nodes, data=data, **kwargs)
-        return self
+        return self.assign(nodes=self.nodes.update(index=nodes, data=data, **kwargs))
 
     def update_edges(
             self,
@@ -139,28 +155,14 @@ class Graph:
             data: Optional[TypeDataInput] = None,
             **kwargs,
     ) -> TypeGraph:
-        self.edges = self.edges.update(index=edges, data=data, **kwargs)
-        return self
-
-    # need to keep all three update functions for kwargs
-    def update(
-            self,
-            nodes: Optional[TypeNodesInput] = None,
-            edges: Optional[TypeEdgesInput] = None,
-            nodes_data: Optional[TypeDataInput] = None,
-            edges_data: Optional[TypeDataInput] = None,
-            **kwargs,
-    ) -> TypeGraph:
-        graph = self.update_nodes(nodes=nodes, data=nodes_data, **kwargs)
-        graph = graph.update_edges(edges=edges, data=edges_data, **kwargs)
-        return graph
+        return self.assign(edges=self.edges.update(index=edges, data=data, **kwargs))
 
     def drop_nodes(
             self,
             nodes: Optional[TypeNodesInput] = None,
             **kwargs,
     ) -> TypeGraph:
-        self.nodes = self.nodes.drop(index=nodes, **kwargs)
+        self.assign(nodes=self.nodes.drop(index=nodes, **kwargs))
         return self
 
     def drop_edges(
@@ -168,18 +170,7 @@ class Graph:
             edges: Optional[TypeEdgesInput] = None,
             **kwargs,
     ) -> TypeGraph:
-        self.edges = self.edges.drop(index=edges, **kwargs)
-        return self
-
-    def drop(
-            self,
-            nodes: Optional[TypeNodesInput] = None,
-            edges: Optional[TypeEdgesInput] = None,
-            **kwargs,
-    ) -> TypeGraph:
-        graph = self.drop_nodes(nodes=nodes, **kwargs)
-        graph = graph.drop_edges(edges=edges, **kwargs)
-        return graph
+        return self.assign(edges=self.edges.drop(index=edges, **kwargs))
 
     @property
     def order(self) -> int:
@@ -197,8 +188,8 @@ class Graph:
             mapper: Optional[TypeMapper] = None,
             **kwargs
     ) -> TypeGraph:
-        self._nodes = self._nodes.map(mapper=mapper, **kwargs)
-        self._edges = self._edges.map(mapper=mapper, **kwargs)
+        self._nodes = self.nodes.map(mapper=mapper, **kwargs)
+        self._edges = self.edges.map(mapper=mapper, **kwargs)
         return self
 
     def get_degree_by_node(self) -> Series:
