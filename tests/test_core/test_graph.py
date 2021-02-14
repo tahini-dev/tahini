@@ -648,29 +648,29 @@ def test_graph_degrees(graph, expected):
     # empty
     (
         tahini.core.graph.Graph(),
-        pd.DataFrame(columns=['neighbors_in', 'neighbors_out', 'neighbors'], index=pd.Index([], name='node')),
+        pd.DataFrame(columns=['neighbors_in', 'neighbors_out', 'neighbors'], index=pd.Index([], name=name_nodes)),
     ),
-    (tahini.core.graph.UndirectedGraph(), pd.DataFrame(columns=['neighbors'], index=pd.Index([], name='node'))),
+    (tahini.core.graph.UndirectedGraph(), pd.DataFrame(columns=['neighbors'], index=pd.Index([], name=name_nodes))),
     # non empty
     (
         tahini.core.graph.Graph(edges=[(0, 1)]),
         pd.DataFrame(
             data=dict(neighbors_in=[[], [0]], neighbors_out=[[1], []], neighbors=[[1], [0]]),
-            index=pd.Index([0, 1], name='node'),
+            index=pd.Index([0, 1], name=name_nodes),
         ),
     ),
     (
         tahini.core.graph.Graph(nodes=[2], edges=[(0, 1)]),
         pd.DataFrame(
             data=dict(neighbors_in=[[], [0], []], neighbors_out=[[1], [], []], neighbors=[[1], [0], []]),
-            index=pd.Index([0, 1, 2], name='node'),
+            index=pd.Index([0, 1, 2], name=name_nodes),
         ),
     ),
     (
         tahini.core.graph.Graph(edges=[(0, 1), (1, 0)]),
         pd.DataFrame(
             data=dict(neighbors_in=[[1], [0]], neighbors_out=[[1], [0]], neighbors=[[1], [0]]),
-            index=pd.Index([0, 1], name='node'),
+            index=pd.Index([0, 1], name=name_nodes),
         ),
     ),
     (
@@ -681,7 +681,7 @@ def test_graph_degrees(graph, expected):
                 neighbors_out=[[1, 2], [2], []],
                 neighbors=[[1, 2], [0, 2], [0, 1]],
             ),
-            index=pd.Index([0, 1, 2], name='node'),
+            index=pd.Index([0, 1, 2], name=name_nodes),
         ),
     ),
 ])

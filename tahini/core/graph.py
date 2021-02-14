@@ -159,7 +159,6 @@ class Graph:
             .stack()
             .value_counts()
             .reindex(self.nodes.data.index)
-            .rename_axis(index=self.nodes.names_index[0])
             .fillna(0)
             .rename(column_name)
             .to_frame()
