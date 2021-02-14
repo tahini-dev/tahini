@@ -293,6 +293,8 @@ elements_specific = (
     ),
 )
 
+# todo fix https://github.com/tahini-dev/tahini/runs/1898415631?check_suite_focus=true
+
 
 @pytest.mark.parametrize('type_index', types_index)
 @pytest.mark.parametrize('elements, kwargs_elements, filter_elements, filter_type_index', [
