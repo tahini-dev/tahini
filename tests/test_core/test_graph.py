@@ -1,3 +1,5 @@
+from functools import partial
+
 import pytest
 import pandas as pd
 
@@ -5,6 +7,17 @@ import tahini.core.graph
 import tahini.core.edges
 import tahini.core.nodes
 import tahini.testing
+
+
+names_edges = tahini.core.graph.Graph().edges.names_index
+name_nodes = tahini.core.graph.Graph().nodes.names_index[0]
+
+assert_frame_equal = partial(
+    pd.testing.assert_frame_equal,
+    check_column_type=False,
+    check_index_type=False,
+    check_dtype=False,
+)
 
 
 @pytest.mark.parametrize('args, kwargs, nodes_expected, edges_expected', [
@@ -103,6 +116,22 @@ def test_undirected_graph_init(args, kwargs, nodes_expected, edges_expected):
     graph = tahini.core.graph.UndirectedGraph(*args, **kwargs)
     tahini.testing.testing.assert_container_equal(graph.nodes, nodes_expected)
     tahini.testing.testing.assert_container_equal(graph.edges, edges_expected)
+
+
+@pytest.mark.parametrize('klass, attribute, expected', [
+    # _type_edges
+    (tahini.core.graph.Graph, '_type_edges', tahini.core.edges.Edges),
+    (tahini.core.graph.UndirectedGraph, '_type_edges', tahini.core.edges.UndirectedEdges),
+    # _columns_degree_keep
+    (tahini.core.graph.Graph, '_columns_degree_keep', ['degree_in', 'degree_out', 'degree']),
+    (tahini.core.graph.UndirectedGraph, '_columns_degree_keep', ['degree']),
+    # _columns_neighbors_keep
+    (tahini.core.graph.Graph, '_columns_neighbors_keep', ['neighbors_in', 'neighbors_out', 'neighbors']),
+    (tahini.core.graph.UndirectedGraph, '_columns_neighbors_keep', ['neighbors']),
+])
+def test_graph_attribute(klass, attribute, expected):
+    value = getattr(klass, attribute)
+    assert value == expected
 
 
 @pytest.mark.parametrize('graph, args, kwargs, expected', [
@@ -524,59 +553,141 @@ def test_graph_map_nodes(graph, args, kwargs, expected):
 
 @pytest.mark.parametrize('graph, args, kwargs, expected', [
     # empty
-    (tahini.core.graph.Graph(), [], dict(), tahini.core.graph.Graph(nodes_data=pd.DataFrame(columns=['degree']))),
-    # non empty
+    (
+        tahini.core.graph.Graph(),
+        [],
+        dict(column_name='x'),
+        pd.DataFrame(columns=['x'], index=pd.Index([], name=name_nodes)),
+    ),
+    # no edges
+    (
+        tahini.core.graph.Graph(nodes=[0]),
+        [],
+        dict(column_name='x'),
+        pd.DataFrame(data=dict(x=[0]), index=pd.Index([0], name=name_nodes)),
+    ),
+    (
+        tahini.core.graph.Graph(nodes=[0, 1]),
+        [],
+        dict(column_name='x'),
+        pd.DataFrame(data=dict(x=[0, 0]), index=pd.Index([0, 1], name=name_nodes)),
+    ),
+    # edges
     (
         tahini.core.graph.Graph(edges=[(0, 1)]),
         [],
-        dict(),
-        tahini.core.graph.Graph(nodes_data=dict(degree=[1, 1]), edges=[(0, 1)]),
+        dict(column_name='x'),
+        pd.DataFrame(data=dict(x=[1, 1]), index=pd.Index([0, 1], name=name_nodes)),
+    ),
+    (
+        tahini.core.graph.Graph(edges=[(0, 1), (0, 2)]),
+        [],
+        dict(column_name='x'),
+        pd.DataFrame(data=dict(x=[2, 1, 1]), index=pd.Index([0, 1, 2], name=name_nodes)),
+    ),
+    # in
+    (
+        tahini.core.graph.Graph(edges=[(0, 1), (0, 2)]),
+        [],
+        dict(column_name='x', columns_stack=[names_edges[1]]),
+        pd.DataFrame(data=dict(x=[0, 1, 1]), index=pd.Index([0, 1, 2], name=name_nodes)),
+    ),
+    # out
+    (
+        tahini.core.graph.Graph(edges=[(0, 1), (0, 2)]),
+        [],
+        dict(column_name='x', columns_stack=[names_edges[0]]),
+        pd.DataFrame(data=dict(x=[2, 0, 0]), index=pd.Index([0, 1, 2], name=name_nodes)),
+    ),
+])
+def test_graph__edges_stack_value_counts(graph, args, kwargs, expected):
+    df = graph._edges_stack_value_counts(*args, **kwargs)
+    assert_frame_equal(df, expected)
+
+
+@pytest.mark.parametrize('graph', [
+    tahini.core.graph.Graph(),
+    tahini.core.graph.UndirectedGraph(),
+])
+def test_graph__info_columns_degree(graph):
+    info = graph._info_columns_degree()
+    assert isinstance(info, dict)
+    assert all([item in info for item in ['degree', 'degree_in', 'degree_out']])
+
+
+@pytest.mark.parametrize('graph, expected', [
+    # empty
+    (
+        tahini.core.graph.Graph(),
+        pd.DataFrame(columns=['degree_in', 'degree_out', 'degree'], index=pd.Index([], name=name_nodes)),
+    ),
+    (tahini.core.graph.UndirectedGraph(), pd.DataFrame(columns=['degree'], index=pd.Index([], name=name_nodes))),
+    # non empty
+    (
+        tahini.core.graph.Graph(edges=[(0, 1)]),
+        pd.DataFrame(
+            data=dict(degree_in=[0, 1], degree_out=[1, 0], degree=[1, 1]),
+            index=pd.Index([0, 1], name=name_nodes),
+        ),
     ),
     # non empty with zero degree
     (
         tahini.core.graph.Graph(nodes=[2], edges=[(0, 1)]),
-        [],
-        dict(),
-        tahini.core.graph.Graph(nodes_data=dict(degree=[1, 1, 0]), edges=[(0, 1)]),
+        pd.DataFrame(
+            data=dict(degree_in=[0, 1, 0], degree_out=[1, 0, 0], degree=[1, 1, 0]),
+            index=pd.Index([0, 1, 2], name=name_nodes),
+        ),
     ),
 ])
-def test_graph_get_degrees(graph, args, kwargs, expected):
-    graph_with_degrees = graph.get_degrees(*args, **kwargs)
-    tahini.testing.assert_graph_equal(graph_with_degrees, expected)
+def test_graph_degrees(graph, expected):
+    df = graph.degrees
+    assert_frame_equal(df, expected)
 
 
-# @pytest.mark.parametrize('graph, args, kwargs, expected', [
-#     # empty
-#     (tahini.core.graph.Graph(), [], dict(), pd.Series(name='neighbors', index=pd.Index([], name='node'))),
-#     # non empty
-#     (
-#         tahini.core.graph.Graph(edges=[(0, 1)]),
-#         [],
-#         dict(),
-#         pd.Series([[1], None], name='neighbors', index=pd.Index([0, 1], name='node')),
-#     ),
-#     (
-#         tahini.core.graph.Graph(nodes=[2], edges=[(0, 1)]),
-#         [],
-#         dict(),
-#         pd.Series([[1], None, None], name='neighbors', index=pd.Index([0, 1, 2], name='node')),
-#     ),
-#     (
-#         tahini.core.graph.Graph(edges=[(0, 1), (1, 0)]),
-#         [],
-#         dict(),
-#         pd.Series([[1], [0]], name='neighbors', index=pd.Index([0, 1], name='node')),
-#     ),
-#     (
-#         tahini.core.graph.Graph(edges=[(0, 1), (1, 2), (0, 2)]),
-#         [],
-#         dict(),
-#         pd.Series([[1, 2], [2], None], name='neighbors', index=pd.Index([0, 1, 2], name='node')),
-#     ),
-# ])
-# def test_graph_get_neighbors(graph, args, kwargs, expected):
-#     neighbors = graph.get_neighbors(*args, **kwargs)
-#     pd.testing.assert_series_equal(neighbors, expected, check_index_type=False)
+@pytest.mark.parametrize('graph, expected', [
+    # empty
+    (
+        tahini.core.graph.Graph(),
+        pd.DataFrame(columns=['neighbors_in', 'neighbors_out', 'neighbors'], index=pd.Index([], name='node')),
+    ),
+    (tahini.core.graph.UndirectedGraph(), pd.DataFrame(columns=['neighbors'], index=pd.Index([], name='node'))),
+    # non empty
+    (
+        tahini.core.graph.Graph(edges=[(0, 1)]),
+        pd.DataFrame(
+            data=dict(neighbors_in=[[], [0]], neighbors_out=[[1], []], neighbors=[[1], [0]]),
+            index=pd.Index([0, 1], name='node'),
+        ),
+    ),
+    (
+        tahini.core.graph.Graph(nodes=[2], edges=[(0, 1)]),
+        pd.DataFrame(
+            data=dict(neighbors_in=[[], [0], []], neighbors_out=[[1], [], []], neighbors=[[1], [0], []]),
+            index=pd.Index([0, 1, 2], name='node'),
+        ),
+    ),
+    (
+        tahini.core.graph.Graph(edges=[(0, 1), (1, 0)]),
+        pd.DataFrame(
+            data=dict(neighbors_in=[[1], [0]], neighbors_out=[[1], [0]], neighbors=[[1], [0]]),
+            index=pd.Index([0, 1], name='node'),
+        ),
+    ),
+    (
+        tahini.core.graph.Graph(edges=[(0, 1), (1, 2), (0, 2)]),
+        pd.DataFrame(
+            data=dict(
+                neighbors_in=[[], [0], [1, 0]],
+                neighbors_out=[[1, 2], [2], []],
+                neighbors=[[1, 2], [0, 2], [0, 1]],
+            ),
+            index=pd.Index([0, 1, 2], name='node'),
+        ),
+    ),
+])
+def test_graph_get_neighbors(graph, expected):
+    df = graph.neighbors
+    assert_frame_equal(df, expected)
 
 
 @pytest.mark.parametrize('klass, args, kwargs, expected', [

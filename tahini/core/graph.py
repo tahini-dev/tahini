@@ -1,7 +1,7 @@
 from __future__ import annotations
-from typing import Optional, Union, TypeVar, Callable
+from typing import Optional, Union, TypeVar, Callable, Sequence, Dict
 
-from pandas import Series, MultiIndex
+from pandas import DataFrame, MultiIndex, concat as pandas_concat
 
 from .base import (
     TypeDataInput,
@@ -29,6 +29,8 @@ TypeGraph = TypeVar('TypeGraph', bound='Graph')
 class Graph:
 
     _type_edges = Edges
+    _columns_degree_keep = ['degree_in', 'degree_out', 'degree']
+    _columns_neighbors_keep = ['neighbors_in', 'neighbors_out', 'neighbors']
 
     def __init__(
             self,
@@ -141,52 +143,88 @@ class Graph:
         self._edges = self.edges.map(mapper=mapper, **kwargs)
         return self
 
-    def get_degrees(self) -> TypeGraph:
+    def _edges_stack_value_counts(
+            self,
+            column_name: str,
+            columns_stack: Optional[Sequence[str]] = None,
+    ) -> DataFrame:
 
-        degree_by_node = (
-            self.edges.data_internal
-            [self.edges.names_index]
+        if columns_stack is None:
+            columns_stack = self.edges.names_index
+
+        df = (
+            self.edges
+            .data_internal
+            [columns_stack]
             .stack()
             .value_counts()
+            .reindex(self.nodes.data.index)
             .rename_axis(index=self.nodes.names_index[0])
-            .rename('degree')
+            .fillna(0)
+            .rename(column_name)
+            .to_frame()
         )
 
-        graph = self.update_nodes(
-            data=(
-                self.nodes
-                .update(data=degree_by_node)
-                .data
-                .assign(
-                    degree=lambda x: x['degree'].fillna(0),
-                )
-            )
+        return df
+
+    def _info_columns_degree(self) -> Dict[str, Dict[str, Sequence[str]]]:
+        info = {
+            'degree': dict(),
+            'degree_in': dict(columns_stack=[self.edges.names_index[1]]),
+            'degree_out': dict(columns_stack=[self.edges.names_index[0]]),
+        }
+        return info
+
+    @property
+    def degrees(self) -> DataFrame:
+
+        info_columns_degree = self._info_columns_degree()
+
+        df = pandas_concat(
+            [
+                self._edges_stack_value_counts(column_name=column, **info_columns_degree[column])
+                for column in self._columns_degree_keep
+            ],
+            axis=1,
         )
 
-        return graph
+        return df
 
-    # def get_neighbors(
-    #         self,
-    # ) -> Series:
-    #
-    #     neighbors = (
-    #         self.edges
-    #         .data
-    #         .reset_index(level=self.edges.names_index[0])
-    #         .groupby(level=self.edges.names_index[1])
-    #         [self.edges.names_index[0]]
-    #         .apply(list)
-    #         .rename_axis(index='node')
-    #         .rename('neighbors')
-    #     )
-    #
-    #     neighbors = (
-    #         neighbors
-    #         .combine_first(Series(index=self.nodes.data.index, name='neighbors'))
-    #         [self.nodes]
-    #     )
-    #
-    #     return neighbors
+    @property
+    def neighbors(self) -> DataFrame:
+
+        column_neighbors_in = self.edges.names_index[0].replace(self.nodes.names_index[0], 'neighbors')
+        column_neighbors_out = self.edges.names_index[1].replace(self.nodes.names_index[0], 'neighbors')
+
+        neighbors_in = (
+            self.edges
+            .data_internal
+            .groupby(self.edges.names_index[1])
+            [self.edges.names_index[0]]
+            .apply(list)
+            .rename_axis(index=self.nodes.names_index[0])
+            .rename(column_neighbors_in)
+        )
+
+        neighbors_out = (
+            self.edges
+            .data_internal
+            .groupby(self.edges.names_index[0])
+            [self.edges.names_index[1]]
+            .apply(list)
+            .rename_axis(index=self.nodes.names_index[0])
+            .rename(column_neighbors_out)
+        )
+
+        df = (
+            pandas_concat([neighbors_in, neighbors_out], axis=1)
+            .reindex(self.nodes.data.index)
+            .applymap(lambda x: x if isinstance(x, list) else [])
+            .assign(neighbors=lambda x: (x[column_neighbors_in] + x[column_neighbors_out]).apply(frozenset).apply(list))
+            [self._columns_neighbors_keep]
+        )
+
+        return df
 
     @classmethod
     def path(
@@ -277,7 +315,10 @@ class Graph:
 
 
 class UndirectedGraph(Graph):
+
     _type_edges = UndirectedEdges
+    _columns_degree_keep = ['degree']
+    _columns_neighbors_keep = ['neighbors']
 
     @classmethod
     def _get_unique_edges(
