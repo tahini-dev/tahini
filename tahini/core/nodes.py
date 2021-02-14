@@ -1,11 +1,14 @@
 from __future__ import annotations
-from typing import Optional, Union
+from typing import Optional, Union, Sequence
+
+from pandas import DataFrame
 
 from .base import (
     ContainerDataIndexed,
     TypeIndexInput,
     TypeDataInput,
 )
+from ..plot.positions import get as get_positions
 
 __all__ = [
     'Nodes',
@@ -30,6 +33,24 @@ class Nodes(ContainerDataIndexed):
             index = range(order)
 
         super().__init__(index=index, data=data, **kwargs)
+
+    def get_positions(
+            self,
+            layout: Optional[str] = None,
+            center: Optional[Sequence] = None,
+            dim: Optional[int] = None,
+            **kwargs,
+    ) -> DataFrame:
+
+        df = Nodes(data=get_positions(
+            items=self.data.index,
+            layout=layout,
+            center=center,
+            dim=dim,
+            **kwargs,
+        )).data
+
+        return df
 
 
 TypeNodesInput = Union[Nodes, TypeIndexInput]

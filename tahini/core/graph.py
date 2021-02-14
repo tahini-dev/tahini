@@ -16,11 +16,12 @@ from .edges import (
     UndirectedEdges,
     TypeEdgesInput,
 )
+from ..plot.engine import Plotly as PlotlyEngine
 
 __all__ = [
     'Graph',
     'UndirectedGraph',
-    'TypeDataInput',
+    'TypeGraph',
 ]
 
 TypeGraph = TypeVar('TypeGraph', bound='Graph')
@@ -44,6 +45,95 @@ class Graph:
         self._nodes = Nodes(index=nodes, data=nodes_data, order=order, **kwargs)
         self._edges = self._type_edges(index=edges, data=edges_data, **kwargs)
         self._nodes = self._update_nodes_from_edges()
+        self._engine_plot = PlotlyEngine(graph=self)
+
+
+    @classmethod
+    def path(
+            cls,
+            order: Optional[int] = None,
+            nodes: Optional[Nodes] = None,
+    ) -> TypeGraph:
+
+        if order is None:
+            order = len(nodes)
+
+        graph = cls(order=order, edges=MultiIndex.from_arrays([range(order - 1), range(1, order)]))
+
+        if nodes is not None:
+            graph = graph.map_nodes(mapper=dict(zip(range(order), Nodes(index=nodes))))
+
+        return graph
+
+    @classmethod
+    def cycle(
+            cls,
+            order: Optional[int] = None,
+            nodes: Optional[Nodes] = None,
+    ) -> TypeGraph:
+
+        if order is None:
+            order = len(nodes)
+
+        if order < 3:
+            raise ValueError("Inputs 'order' or length of 'nodes' has to be >= 3 for cycle")
+
+        nodes_left = range(order)
+        nodes_right = list(range(1, order))
+        nodes_right.append(0)
+        edges = MultiIndex.from_arrays([nodes_left, nodes_right])
+
+        graph = cls(order=order, edges=edges)
+
+        if nodes is not None:
+            graph = graph.map_nodes(mapper=dict(zip(range(order), Nodes(index=nodes))))
+
+        return graph
+
+    @classmethod
+    def star(
+            cls,
+            order: Optional[int] = None,
+            nodes: Optional[Nodes] = None,
+    ) -> TypeGraph:
+
+        if order is None:
+            order = len(nodes)
+
+        graph = cls(order=order, edges=MultiIndex.from_arrays([[0] * (order - 1), range(1, order)]))
+
+        if nodes is not None:
+            graph = graph.map_nodes(mapper=dict(zip(range(order), Nodes(index=nodes))))
+
+        return graph
+
+    @classmethod
+    def _get_unique_edges(
+            cls,
+            edges: MultiIndex,
+    ) -> MultiIndex:
+        return edges
+
+    @classmethod
+    def complete(
+            cls,
+            order: Optional[int] = None,
+            nodes: Optional[Nodes] = None,
+    ) -> TypeGraph:
+
+        if order is None:
+            order = len(nodes)
+
+        edges = MultiIndex.from_product([range(order)] * 2)
+        edges = edges[edges.get_level_values(0) != edges.get_level_values(1)]
+        edges = cls._get_unique_edges(edges=edges)
+
+        graph = cls(order=order, edges=edges)
+
+        if nodes is not None:
+            graph = graph.map_nodes(mapper=dict(zip(range(order), Nodes(index=nodes))))
+
+        return graph
 
     @property
     def nodes(self) -> Nodes:
@@ -179,13 +269,13 @@ class Graph:
 
         info_columns_degree = self._info_columns_degree()
 
-        df = pandas_concat(
+        df = Nodes(data=pandas_concat(
             [
                 self._edges_stack_value_counts(column_name=column, **info_columns_degree[column])
                 for column in self._columns_degree_keep
             ],
             axis=1,
-        )
+        )).data
 
         return df
 
@@ -215,102 +305,21 @@ class Graph:
             .rename(column_neighbors_out)
         )
 
-        df = (
+        df = Nodes(data=(
             pandas_concat([neighbors_in, neighbors_out], axis=1)
             .reindex(self.nodes.data.index)
             .applymap(lambda x: x if isinstance(x, list) else [])
             .assign(neighbors=lambda x: (x[column_neighbors_in] + x[column_neighbors_out]).apply(frozenset).apply(list))
             [self._columns_neighbors_keep]
-        )
+        )).data
 
         return df
 
-    @classmethod
-    def path(
-            cls,
-            order: Optional[int] = None,
-            nodes: Optional[Nodes] = None,
-    ) -> TypeGraph:
-
-        if order is None:
-            order = len(nodes)
-
-        graph = cls(order=order, edges=MultiIndex.from_arrays([range(order - 1), range(1, order)]))
-
-        if nodes is not None:
-            graph = graph.map_nodes(mapper=dict(zip(range(order), Nodes(index=nodes))))
-
-        return graph
-
-    @classmethod
-    def cycle(
-            cls,
-            order: Optional[int] = None,
-            nodes: Optional[Nodes] = None,
-    ) -> TypeGraph:
-
-        if order is None:
-            order = len(nodes)
-
-        if order < 3:
-            raise ValueError("Inputs 'order' or length of 'nodes' has to be >= 3 for cycle")
-
-        nodes_left = range(order)
-        nodes_right = list(range(1, order))
-        nodes_right.append(0)
-        edges = MultiIndex.from_arrays([nodes_left, nodes_right])
-
-        graph = cls(order=order, edges=edges)
-
-        if nodes is not None:
-            graph = graph.map_nodes(mapper=dict(zip(range(order), Nodes(index=nodes))))
-
-        return graph
-
-    @classmethod
-    def star(
-            cls,
-            order: Optional[int] = None,
-            nodes: Optional[Nodes] = None,
-    ) -> TypeGraph:
-
-        if order is None:
-            order = len(nodes)
-
-        graph = cls(order=order, edges=MultiIndex.from_arrays([[0] * (order - 1), range(1, order)]))
-
-        if nodes is not None:
-            graph = graph.map_nodes(mapper=dict(zip(range(order), Nodes(index=nodes))))
-
-        return graph
-
-    @classmethod
-    def _get_unique_edges(
-            cls,
-            edges: MultiIndex,
-    ) -> MultiIndex:
-        return edges
-
-    @classmethod
-    def complete(
-            cls,
-            order: Optional[int] = None,
-            nodes: Optional[Nodes] = None,
-    ) -> TypeGraph:
-
-        if order is None:
-            order = len(nodes)
-
-        edges = MultiIndex.from_product([range(order)] * 2)
-        edges = edges[edges.get_level_values(0) != edges.get_level_values(1)]
-        edges = cls._get_unique_edges(edges=edges)
-
-        graph = cls(order=order, edges=edges)
-
-        if nodes is not None:
-            graph = graph.map_nodes(mapper=dict(zip(range(order), Nodes(index=nodes))))
-
-        return graph
+    def plot(
+            self,
+            **kwargs,
+    ):
+        return self._engine_plot.plot(**kwargs)
 
 
 class UndirectedGraph(Graph):
