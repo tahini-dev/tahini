@@ -76,4 +76,7 @@ class Plotly(Base):
             )
         )
 
+        # for edge:
+        # https://stackoverflow.com/questions/51410283/how-to-efficiently-create-interactive-directed-network-graphs-with-arrows-on-p
+
         return fig
