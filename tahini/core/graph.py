@@ -3,79 +3,27 @@ from typing import Optional, Union, TypeVar, Callable
 
 from pandas import Series, MultiIndex
 
-from .container import (
-    ContainerDataIndexed,
-    ContainerDataIndexedMulti,
-    ContainerDataIndexedMultiSets,
-    TypeIndexInput,
-    TypeIndexMultiInput,
+from .base import (
     TypeDataInput,
     TypeMapper,
+)
+from .nodes import (
+    Nodes,
+    TypeNodesInput
+)
+from .edges import (
+    Edges,
+    UndirectedEdges,
+    TypeEdgesInput,
 )
 
 __all__ = [
     'Graph',
     'UndirectedGraph',
-    'Nodes',
-    'Edges',
-    'UndirectedEdges',
-    'TypeNodesInput',
-    'TypeEdgesInput',
     'TypeDataInput',
 ]
 
-
-class Nodes(ContainerDataIndexed):
-
-    _names_index = ['node']
-    _name_index_internal = 'node_internal'
-
-    def __init__(
-            self,
-            index: Optional[TypeIndexInput] = None,
-            data: Optional[TypeDataInput] = None,
-            order: Optional[int] = None,
-            **kwargs,
-    ):
-
-        if order is not None:
-            index = range(order)
-
-        super().__init__(index=index, data=data, **kwargs)
-
-
-TypeEdges = TypeVar('TypeEdges', bound='Edges')
-
-
-class Edges(ContainerDataIndexedMulti):
-
-    _names_index = ['node_from', 'node_to']
-    _name_index_internal = 'edge_internal'
-
-    @property
-    def nodes(self) -> Nodes:
-        return Nodes(index=self.data_internal[self._names_index].stack().drop_duplicates())
-
-    def keep_nodes(
-            self,
-            nodes: Optional[TypeNodesInput] = None,
-    ) -> TypeEdges:
-        if nodes is not None:
-            nodes = Nodes(index=nodes)
-            self.data = self.data_internal[
-                lambda x: x[self._names_index[0]].isin(nodes) & x[self._names_index[1]].isin(nodes)
-            ]
-        return self
-
-
-class UndirectedEdges(ContainerDataIndexedMultiSets, Edges):
-    _names_index = ['node_0', 'node_1']
-    _name_index_internal = 'edge_internal'
-
-
 TypeGraph = TypeVar('TypeGraph', bound='Graph')
-TypeNodesInput = Union[Nodes, TypeIndexInput]
-TypeEdgesInput = Union[Edges, TypeIndexMultiInput]
 
 
 class Graph:
@@ -193,48 +141,52 @@ class Graph:
         self._edges = self.edges.map(mapper=mapper, **kwargs)
         return self
 
-    def get_degree_by_node(self) -> Series:
+    def get_degrees(self) -> TypeGraph:
 
         degree_by_node = (
-            self.edges.data.index
-            .to_frame()
+            self.edges.data_internal
+            [self.edges.names_index]
             .stack()
             .value_counts()
-            .rename_axis(index='node')
+            .rename_axis(index=self.nodes.names_index[0])
             .rename('degree')
         )
 
-        degree_by_node = (
-            degree_by_node
-            .combine_first(Series(data=0, index=self.nodes.data.index, name='degree'))
-            [self.nodes]
-            .astype('int64')
+        graph = self.update_nodes(
+            data=(
+                self.nodes
+                .update(data=degree_by_node)
+                .data
+                .assign(
+                    degree=lambda x: x['degree'].fillna(0),
+                )
+            )
         )
 
-        return degree_by_node
+        return graph
 
-    def get_neighbors(
-            self,
-    ) -> Series:
-
-        neighbors = (
-            self.edges
-            .data
-            .reset_index(level='node_to')
-            .groupby(level='node_from')
-            ['node_to']
-            .apply(list)
-            .rename_axis(index='node')
-            .rename('neighbors')
-        )
-
-        neighbors = (
-            neighbors
-            .combine_first(Series(index=self.nodes.data.index, name='neighbors'))
-            [self.nodes]
-        )
-
-        return neighbors
+    # def get_neighbors(
+    #         self,
+    # ) -> Series:
+    #
+    #     neighbors = (
+    #         self.edges
+    #         .data
+    #         .reset_index(level=self.edges.names_index[0])
+    #         .groupby(level=self.edges.names_index[1])
+    #         [self.edges.names_index[0]]
+    #         .apply(list)
+    #         .rename_axis(index='node')
+    #         .rename('neighbors')
+    #     )
+    #
+    #     neighbors = (
+    #         neighbors
+    #         .combine_first(Series(index=self.nodes.data.index, name='neighbors'))
+    #         [self.nodes]
+    #     )
+    #
+    #     return neighbors
 
     @classmethod
     def path(

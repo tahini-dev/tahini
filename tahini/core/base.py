@@ -11,6 +11,7 @@ __all__ = [
     'ContainerDataIndexed',
     'ContainerDataIndexedMulti',
     'ContainerDataIndexedMultiSets',
+    'TypeContainerDataIndexed',
     'TypeIndexInput',
     'TypeIndexMultiInput',
     'TypeDataInput',
@@ -51,6 +52,10 @@ class ContainerDataIndexed(Collection):
             data = DataFrame(index=index, **kwargs)
 
         self.data = data
+
+    @property
+    def names_index(self) -> TypeSequence[str]:
+        return self._names_index
 
     @property
     def data_internal(
@@ -136,10 +141,13 @@ class ContainerDataIndexed(Collection):
         if func is None:
             func = self._update_func
 
+        container = self.__class__(index=index, data=data)
+
         self.data = (
             self.data_internal
+            .reindex(columns=self.data_internal.columns.union(container.data_internal.columns))
             .combine(
-                other=self.__class__(index=index, data=data).data_internal,
+                other=container.data_internal,
                 func=func,
                 **kwargs,
             )

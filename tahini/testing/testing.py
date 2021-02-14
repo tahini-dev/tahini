@@ -2,8 +2,8 @@ from typing import Optional, Union, NoReturn
 
 import pandas as pd
 
-from .container import ContainerDataIndexed
-from .core import Graph
+from tahini.core.base import ContainerDataIndexed
+from tahini.core import Graph
 
 __all__ = ['assert_graph_equal', 'assert_container_equal']
 

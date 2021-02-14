@@ -1,7 +1,7 @@
 import pytest
 
 import tahini.testing
-import tahini.container
+import tahini.core.base
 import tahini.core
 
 
@@ -9,7 +9,7 @@ import tahini.core
     # mismatch in types
     (
         [],
-        dict(left=tahini.container.ContainerDataIndexed(), right=tahini.container.ContainerDataIndexedMulti()),
+        dict(left=tahini.core.base.ContainerDataIndexed(), right=tahini.core.base.ContainerDataIndexedMulti()),
         AssertionError,
         """Types are different
 
@@ -18,7 +18,7 @@ import tahini.core
     ),
     (
         [],
-        dict(left=tahini.container.ContainerDataIndexedMulti(), right=tahini.container.ContainerDataIndexedMultiSets()),
+        dict(left=tahini.core.base.ContainerDataIndexedMulti(), right=tahini.core.base.ContainerDataIndexedMultiSets()),
         AssertionError,
         """Types are different
 
@@ -28,7 +28,7 @@ import tahini.core
     # different length
     (
         [],
-        dict(left=tahini.container.ContainerDataIndexed(), right=tahini.container.ContainerDataIndexed(index=[0])),
+        dict(left=tahini.core.base.ContainerDataIndexed(), right=tahini.core.base.ContainerDataIndexed(index=[0])),
         AssertionError,
         """ContainerDataIndexed.data_testing are different
 
@@ -40,8 +40,8 @@ ContainerDataIndexed.data_testing shape mismatch
     (
         [],
         dict(
-            left=tahini.container.ContainerDataIndexed(index=[0]),
-            right=tahini.container.ContainerDataIndexed(index=[1]),
+            left=tahini.core.base.ContainerDataIndexed(index=[0]),
+            right=tahini.core.base.ContainerDataIndexed(index=[1]),
         ),
         AssertionError,
         """ContainerDataIndexed.data_testing.index are different
@@ -54,8 +54,8 @@ ContainerDataIndexed.data_testing.index values are different (100.0 %)
     (
         [],
         dict(
-            left=tahini.container.ContainerDataIndexed(index=[0]),
-            right=tahini.container.ContainerDataIndexed(index=['a']),
+            left=tahini.core.base.ContainerDataIndexed(index=[0]),
+            right=tahini.core.base.ContainerDataIndexed(index=['a']),
         ),
         AssertionError,
         """ContainerDataIndexed.data_testing.index are different
@@ -68,8 +68,8 @@ ContainerDataIndexed.data_testing.index values are different (100.0 %)
     (
         [],
         dict(
-            left=tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]),
-            right=tahini.container.ContainerDataIndexedMulti(index=[(1, 0)]),
+            left=tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]),
+            right=tahini.core.base.ContainerDataIndexedMulti(index=[(1, 0)]),
         ),
         AssertionError,
         """ContainerDataIndexedMulti.data_testing.index are different
@@ -81,73 +81,73 @@ ContainerDataIndexedMulti.data_testing.index values are different (100.0 %)
 ])
 def test_assert_container_equal_error(args, kwargs, type_error, message_error):
     with pytest.raises(type_error) as e:
-        tahini.testing.assert_container_equal(*args, **kwargs)
+        tahini.testing.testing.assert_container_equal(*args, **kwargs)
     assert e.value.args[0] == message_error
 
 
 @pytest.mark.parametrize('args, kwargs', [
     # empty
-    ([], dict(left=tahini.container.ContainerDataIndexed(), right=tahini.container.ContainerDataIndexed())),
-    ([], dict(left=tahini.container.ContainerDataIndexedMulti(), right=tahini.container.ContainerDataIndexedMulti())),
+    ([], dict(left=tahini.core.base.ContainerDataIndexed(), right=tahini.core.base.ContainerDataIndexed())),
+    ([], dict(left=tahini.core.base.ContainerDataIndexedMulti(), right=tahini.core.base.ContainerDataIndexedMulti())),
     (
         [],
         dict(
-            left=tahini.container.ContainerDataIndexedMultiSets(),
-            right=tahini.container.ContainerDataIndexedMultiSets()),
+            left=tahini.core.base.ContainerDataIndexedMultiSets(),
+            right=tahini.core.base.ContainerDataIndexedMultiSets()),
     ),
     # non empty
     (
         [],
         dict(
-            left=tahini.container.ContainerDataIndexed(index=[0]),
-            right=tahini.container.ContainerDataIndexed(index=[0])),
+            left=tahini.core.base.ContainerDataIndexed(index=[0]),
+            right=tahini.core.base.ContainerDataIndexed(index=[0])),
     ),
     (
         [],
         dict(
-            left=tahini.container.ContainerDataIndexed(index=[0, 1]),
-            right=tahini.container.ContainerDataIndexed(index=[0, 1])),
+            left=tahini.core.base.ContainerDataIndexed(index=[0, 1]),
+            right=tahini.core.base.ContainerDataIndexed(index=[0, 1])),
     ),
     (
         [],
         dict(
-            left=tahini.container.ContainerDataIndexed(index=[0, 1]),
-            right=tahini.container.ContainerDataIndexed(index=[1, 0])),
+            left=tahini.core.base.ContainerDataIndexed(index=[0, 1]),
+            right=tahini.core.base.ContainerDataIndexed(index=[1, 0])),
     ),
     (
         [],
         dict(
-            left=tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]),
-            right=tahini.container.ContainerDataIndexedMulti(index=[(0, 1)])),
+            left=tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]),
+            right=tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)])),
     ),
     (
         [],
         dict(
-            left=tahini.container.ContainerDataIndexedMulti(index=[(0, 1), (0, 2)]),
-            right=tahini.container.ContainerDataIndexedMulti(index=[(0, 1), (0, 2)])),
+            left=tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1), (0, 2)]),
+            right=tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1), (0, 2)])),
     ),
     (
         [],
         dict(
-            left=tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
-            right=tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)])),
+            left=tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+            right=tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)])),
     ),
     (
         [],
         dict(
-            left=tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1), (0, 2)]),
-            right=tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1), (0, 2)])),
+            left=tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1), (0, 2)]),
+            right=tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1), (0, 2)])),
     ),
     # order does not matter for ContainerDataIndexedMultiSets
     (
         [],
         dict(
-            left=tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
-            right=tahini.container.ContainerDataIndexedMultiSets(index=[(1, 0)])),
+            left=tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+            right=tahini.core.base.ContainerDataIndexedMultiSets(index=[(1, 0)])),
     ),
 ])
 def test_assert_container_equal(args, kwargs):
-    tahini.testing.assert_container_equal(*args, **kwargs)
+    tahini.testing.testing.assert_container_equal(*args, **kwargs)
 
 
 @pytest.mark.parametrize('args, kwargs, type_error, message_error', [
@@ -222,7 +222,7 @@ ChildGraph shape mismatch
 ])
 def test_assert_graph_equal_error(args, kwargs, type_error, message_error):
     with pytest.raises(type_error) as e:
-        tahini.testing.assert_graph_equal(*args, **kwargs)
+        tahini.testing.testing.assert_graph_equal(*args, **kwargs)
     assert e.value.args[0] == message_error
 
 
@@ -266,4 +266,4 @@ def test_assert_graph_equal_error(args, kwargs, type_error, message_error):
     ),
 ])
 def test_assert_graph_equal(args, kwargs):
-    tahini.testing.assert_graph_equal(*args, **kwargs)
+    tahini.testing.testing.assert_graph_equal(*args, **kwargs)

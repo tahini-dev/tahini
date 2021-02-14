@@ -8,7 +8,7 @@ import hypothesis.strategies as st
 from hypothesis.extra.pandas import indexes, columns, data_frames
 import pandas as pd
 
-import tahini.container
+import tahini.core.base
 import tahini.testing
 
 names_index_container_data_indexed = 'index'
@@ -102,18 +102,18 @@ def check_nan(x):
 
 
 @pytest.mark.parametrize('klass', [
-    tahini.container.ContainerDataIndexed,
-    tahini.container.ContainerDataIndexedMulti,
-    tahini.container.ContainerDataIndexedMultiSets,
+    tahini.core.base.ContainerDataIndexed,
+    tahini.core.base.ContainerDataIndexedMulti,
+    tahini.core.base.ContainerDataIndexedMultiSets,
 ])
 def test_container_data_indexed__names_index(klass):
     assert isinstance(klass._names_index, Sequence)
 
 
 @pytest.mark.parametrize('klass', [
-    tahini.container.ContainerDataIndexed,
-    tahini.container.ContainerDataIndexedMulti,
-    tahini.container.ContainerDataIndexedMultiSets,
+    tahini.core.base.ContainerDataIndexed,
+    tahini.core.base.ContainerDataIndexedMulti,
+    tahini.core.base.ContainerDataIndexedMultiSets,
 ])
 def test_container_data_indexed__name_index_internal(klass):
     assert isinstance(klass._name_index_internal, str)
@@ -128,7 +128,7 @@ def test_container_data_indexed__name_index_internal(klass):
     ([], dict(index=pd.MultiIndex.from_arrays([[]])), pd.MultiIndex.from_arrays([[]])),
 ])
 def test_container_data_indexed__create_index_internal(args, kwargs, expected):
-    index = tahini.container.ContainerDataIndexed._create_index_internal(*args, **kwargs)
+    index = tahini.core.base.ContainerDataIndexed._create_index_internal(*args, **kwargs)
     assert_index_equal(index, expected)
 
 
@@ -138,7 +138,7 @@ def test_container_data_indexed__create_index_internal(args, kwargs, expected):
 ])
 def test_container_data_indexed__validate_index_error(args, kwargs, type_error, message_error):
     with pytest.raises(type_error) as e:
-        tahini.container.ContainerDataIndexed._validate_index(*args, **kwargs)
+        tahini.core.base.ContainerDataIndexed._validate_index(*args, **kwargs)
     assert e.value.args[0] == message_error
 
 
@@ -150,7 +150,7 @@ def test_container_data_indexed__validate_index_error(args, kwargs, type_error, 
     # empty index
     ([], dict(index=[]), get_data_frame_internal()),
     # empty container idempotent
-    ([], dict(index=tahini.container.ContainerDataIndexed()), get_data_frame_internal()),
+    ([], dict(index=tahini.core.base.ContainerDataIndexed()), get_data_frame_internal()),
     # empty data dict
     ([], dict(data=dict()), get_data_frame_internal()),
     # empty data records
@@ -183,14 +183,14 @@ def test_container_data_indexed__validate_index_error(args, kwargs, type_error, 
     # container idempotent
     (
         [],
-        dict(index=tahini.container.ContainerDataIndexed(data=pd.DataFrame(data=dict(a=[1]), index=['z']))),
+        dict(index=tahini.core.base.ContainerDataIndexed(data=pd.DataFrame(data=dict(a=[1]), index=['z']))),
         get_data_frame_internal(data=dict(a=[1]), index=['z']),
     ),
     # index as column
     ([], dict(data=dict(index=[0, 1])), get_data_frame_internal(index=[0, 1])),
 ])
 def test_container_data_indexed_init(args, kwargs, expected):
-    container = tahini.container.ContainerDataIndexed(*args, **kwargs)
+    container = tahini.core.base.ContainerDataIndexed(*args, **kwargs)
     assert_frame_equal(container.data_internal, expected)
 
 
@@ -201,7 +201,7 @@ def test_container_data_indexed_init(args, kwargs, expected):
     ([], dict(index=pd.Index([0])), pd.Index([0], name=names_index_container_data_indexed)),
 ])
 def test_container_data_indexed__validate_index(args, kwargs, expected):
-    index = tahini.container.ContainerDataIndexed._validate_index(*args, **kwargs)
+    index = tahini.core.base.ContainerDataIndexed._validate_index(*args, **kwargs)
     assert_index_equal(index, expected)
 
 
@@ -220,7 +220,7 @@ def test_container_data_indexed__validate_index(args, kwargs, expected):
     ([], dict(data=pd.DataFrame(data=dict(a=[0, 1], b=[0, 1]))), get_data_frame(data=dict(a=[0, 1], b=[0, 1]))),
 ])
 def test_container_data_indexed__validate_data(args, kwargs, expected):
-    df = tahini.container.ContainerDataIndexed._validate_data(*args, **kwargs)
+    df = tahini.core.base.ContainerDataIndexed._validate_data(*args, **kwargs)
     assert_frame_equal(df, expected)
 
 
@@ -244,7 +244,7 @@ def test_container_data_indexed__validate_data(args, kwargs, expected):
 ])
 def test_container_data_indexed_init_error(args, kwargs, type_error, message_error):
     with pytest.raises(type_error) as e:
-        tahini.container.ContainerDataIndexed(*args, **kwargs)
+        tahini.core.base.ContainerDataIndexed(*args, **kwargs)
     assert e.value.args[0] == message_error
 
 
@@ -308,7 +308,7 @@ def test_container_data_indexed_init_index_single_elements_type(
         filter_type_index,
         data,
 ):
-    container = tahini.container.ContainerDataIndexed(
+    container = tahini.core.base.ContainerDataIndexed(
         index=data.draw(
             type_index(
                 elements=elements(**kwargs_elements).filter(filter_elements),
@@ -342,8 +342,8 @@ def test_container_data_indexed_init_index_single_elements_type(
     ),
 ])
 @given(data=st.data())
-def test_container_data_indexed_init_index_single_elements_type_xfail(type_index, elements, data):
-    container = tahini.container.ContainerDataIndexed(
+def test_container_data_indexed_init_index_single_elements_type_x_fail(type_index, elements, data):
+    container = tahini.core.base.ContainerDataIndexed(
         index=data.draw(type_index(elements=elements.param(), unique=True)),
     )
 
@@ -364,26 +364,40 @@ def test_container_data_indexed_init_index_multiple_elements_type(type_index, li
         type_index(elements=st.one_of(*list_elements), unique=True)
         .filter(lambda x: sum([check_nan(item) for item in x]) < 2)
     )
-    container = tahini.container.ContainerDataIndexed(index=index)
+    container = tahini.core.base.ContainerDataIndexed(index=index)
     assert isinstance(container.data_internal, pd.DataFrame)
 
 
 @given(data=data_frames(columns=(columns('A', elements=st.integers())), index=indexes(elements=st.integers())))
 def test_container_data_indexed_init_data_data_frame(data):
-    container = tahini.container.ContainerDataIndexed(data=data)
+    container = tahini.core.base.ContainerDataIndexed(data=data)
     assert isinstance(container.data_internal, pd.DataFrame)
+
+
+@pytest.mark.parametrize('container, expected', [
+    (tahini.core.base.ContainerDataIndexed(), [names_index_container_data_indexed]),
+    (tahini.core.base.ContainerDataIndexedMulti(), list(names_index_container_data_indexed_multi)),
+    (tahini.core.base.ContainerDataIndexedMultiSets(), list(names_index_container_data_indexed_multi)),
+])
+def test_container_data_indexed_names_index(container, expected):
+    names_index = container.names_index
+    assert names_index == expected
 
 
 @pytest.mark.parametrize('container, data, expected', [
     # empty
-    (tahini.container.ContainerDataIndexed(), pd.DataFrame(), get_data_frame()),
+    (tahini.core.base.ContainerDataIndexed(), pd.DataFrame(), get_data_frame()),
     # non empty container
-    (tahini.container.ContainerDataIndexed(data=dict(a=['1'])), pd.DataFrame(), get_data_frame()),
+    (tahini.core.base.ContainerDataIndexed(data=dict(a=['1'])), pd.DataFrame(), get_data_frame()),
     # empty container and non empty data
-    (tahini.container.ContainerDataIndexed(), pd.DataFrame(data=dict(a=['1'])), get_data_frame(data=dict(a=['1']))),
+    (
+        tahini.core.base.ContainerDataIndexed(),
+        pd.DataFrame(data=dict(a=['1'])),
+        get_data_frame(data=dict(a=['1'])),
+    ),
     # non empty container and data
     (
-        tahini.container.ContainerDataIndexed(data=dict(a=['1'])),
+        tahini.core.base.ContainerDataIndexed(data=dict(a=['1'])),
         pd.DataFrame(data=dict(b=[2])),
         get_data_frame(data=dict(b=[2])),
     ),
@@ -395,10 +409,10 @@ def test_container_data_indexed_data(container, data, expected):
 
 @pytest.mark.parametrize('container, expected', [
     # empty
-    (tahini.container.ContainerDataIndexed(), get_data_frame_internal()),
+    (tahini.core.base.ContainerDataIndexed(), get_data_frame_internal()),
     # non empty container
     (
-        tahini.container.ContainerDataIndexed(data=dict(a=['1'])),
+        tahini.core.base.ContainerDataIndexed(data=dict(a=['1'])),
         get_data_frame_internal(data=dict(a=['1'])),
     ),
 ])
@@ -408,10 +422,10 @@ def test_container_data_indexed_data_internal(container, expected):
 
 @pytest.mark.parametrize('container, expected', [
     # empty
-    (tahini.container.ContainerDataIndexed(), get_data_frame(name_index=name_index_internal)),
+    (tahini.core.base.ContainerDataIndexed(), get_data_frame(name_index=name_index_internal)),
     # non empty container
     (
-        tahini.container.ContainerDataIndexed(data=dict(a=['1'])),
+        tahini.core.base.ContainerDataIndexed(data=dict(a=['1'])),
         get_data_frame(data=dict(a=['1']), name_index=name_index_internal),
     ),
 ])
@@ -421,7 +435,7 @@ def test_container_data_indexed_data_testing(container, expected):
 
 @pytest.mark.parametrize('container, args, kwargs, type_error, message_error', [
     # index not in container
-    (tahini.container.ContainerDataIndexed(), [], dict(index=[0]), KeyError, "[0] not found in axis")
+    (tahini.core.base.ContainerDataIndexed(), [], dict(index=[0]), KeyError, "[0] not found in axis")
 ])
 def test_container_data_indexed_drop_error(container, args, kwargs, type_error, message_error):
     with pytest.raises(type_error) as e:
@@ -431,137 +445,164 @@ def test_container_data_indexed_drop_error(container, args, kwargs, type_error, 
 
 @pytest.mark.parametrize('container, args, kwargs, expected', [
     # empty
-    (tahini.container.ContainerDataIndexed(), [], dict(), tahini.container.ContainerDataIndexed()),
+    (tahini.core.base.ContainerDataIndexed(), [], dict(), tahini.core.base.ContainerDataIndexed()),
     # empty container ignore error
     (
-        tahini.container.ContainerDataIndexed(),
+        tahini.core.base.ContainerDataIndexed(),
         [],
         dict(index=[0], errors='ignore'),
-        tahini.container.ContainerDataIndexed(),
+        tahini.core.base.ContainerDataIndexed(),
     ),
     # empty inputs
-    (tahini.container.ContainerDataIndexed(index=[0]), [], dict(), tahini.container.ContainerDataIndexed(index=[0])),
-    # non empty
-    (tahini.container.ContainerDataIndexed(index=[0]), [], dict(index=[0]), tahini.container.ContainerDataIndexed()),
     (
-        tahini.container.ContainerDataIndexed(index=[0, 1]),
+        tahini.core.base.ContainerDataIndexed(index=[0]),
         [],
-        dict(index=[0, 1]),
-        tahini.container.ContainerDataIndexed(),
+        dict(),
+        tahini.core.base.ContainerDataIndexed(index=[0]),
+    ),
+    # non empty
+    (
+        tahini.core.base.ContainerDataIndexed(index=[0]),
+        [],
+        dict(index=[0]),
+        tahini.core.base.ContainerDataIndexed(),
     ),
     (
-        tahini.container.ContainerDataIndexed(index=[0, 1]),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1]),
+        [],
+        dict(index=[0, 1]),
+        tahini.core.base.ContainerDataIndexed(),
+    ),
+    (
+        tahini.core.base.ContainerDataIndexed(index=[0, 1]),
         [],
         dict(index=[1]),
-        tahini.container.ContainerDataIndexed(index=[0]),
+        tahini.core.base.ContainerDataIndexed(index=[0]),
     ),
     # drop columns
     (
-        tahini.container.ContainerDataIndexed(index=[0], columns=['a']),
+        tahini.core.base.ContainerDataIndexed(index=[0], columns=['a']),
         [],
         dict(columns=['a']),
-        tahini.container.ContainerDataIndexed(index=[0]),
+        tahini.core.base.ContainerDataIndexed(index=[0]),
     ),
 ])
 def test_container_data_indexed_drop(container, args, kwargs, expected):
     container = container.drop(*args, **kwargs)
-    tahini.testing.assert_container_equal(container, expected)
+    tahini.testing.testing.assert_container_equal(container, expected)
 
 
 @pytest.mark.parametrize('container, args, kwargs, expected', [
     # empty
-    (tahini.container.ContainerDataIndexed(), [], dict(), tahini.container.ContainerDataIndexed()),
+    (tahini.core.base.ContainerDataIndexed(), [], dict(), tahini.core.base.ContainerDataIndexed()),
+    # empty column
+    (
+        tahini.core.base.ContainerDataIndexed(),
+        [],
+        dict(data=pd.DataFrame(data=dict(value=[]))),
+        tahini.core.base.ContainerDataIndexed(data=dict(value=[])),
+    ),
     # empty inputs
-    (tahini.container.ContainerDataIndexed(index=[0]), [], dict(), tahini.container.ContainerDataIndexed(index=[0])),
+    (
+        tahini.core.base.ContainerDataIndexed(index=[0]),
+        [],
+        dict(),
+        tahini.core.base.ContainerDataIndexed(index=[0]),
+    ),
     # empty container and non empty index
-    (tahini.container.ContainerDataIndexed(), [], dict(index=[0]), tahini.container.ContainerDataIndexed(index=[0])),
+    (
+        tahini.core.base.ContainerDataIndexed(),
+        [],
+        dict(index=[0]),
+        tahini.core.base.ContainerDataIndexed(index=[0]),
+    ),
     # empty container and non empty data
     (
-        tahini.container.ContainerDataIndexed(),
+        tahini.core.base.ContainerDataIndexed(),
         [],
         dict(data=dict(a=[1])),
-        tahini.container.ContainerDataIndexed(data=dict(a=[1])),
+        tahini.core.base.ContainerDataIndexed(data=dict(a=[1])),
     ),
     # update with no new changes
     (
-        tahini.container.ContainerDataIndexed(index=[0]),
+        tahini.core.base.ContainerDataIndexed(index=[0]),
         [],
         dict(index=[0]),
-        tahini.container.ContainerDataIndexed(index=[0]),
+        tahini.core.base.ContainerDataIndexed(index=[0]),
     ),
     # update seems to sort
     (
-        tahini.container.ContainerDataIndexed(index=[0]),
+        tahini.core.base.ContainerDataIndexed(index=[0]),
         [],
         dict(index=[2, 1]),
-        tahini.container.ContainerDataIndexed(index=[0, 1, 2]),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1, 2]),
     ),
     # new column and index
     (
-        tahini.container.ContainerDataIndexed(),
+        tahini.core.base.ContainerDataIndexed(),
         [],
         dict(data=dict(a=[1, 2])),
-        tahini.container.ContainerDataIndexed(data=dict(a=[1, 2])),
+        tahini.core.base.ContainerDataIndexed(data=dict(a=[1, 2])),
     ),
     # new column for given index
     (
-        tahini.container.ContainerDataIndexed(index=[0, 1]),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1]),
         [],
         dict(index=[0, 1], data=dict(a=[1, 2])),
-        tahini.container.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 2])),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 2])),
     ),
     # new column and index item
     (
-        tahini.container.ContainerDataIndexed(index=[0, 1]),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1]),
         [],
         dict(index=[1, 2], data=dict(a=[1, 2])),
-        tahini.container.ContainerDataIndexed(index=[0, 1, 2], data=dict(a=[nan, 1, 2])),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1, 2], data=dict(a=[nan, 1, 2])),
     ),
     # cannot update to nan with default func
     (
-        tahini.container.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 2])),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 2])),
         [],
         dict(index=[1], data=dict(a=[nan])),
-        tahini.container.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 2])),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 2])),
     ),
     # single value in column
     (
-        tahini.container.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 2])),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 2])),
         [],
         dict(index=[1], data=dict(a=[3])),
-        tahini.container.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 3])),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 3])),
     ),
     # single value in column
     (
-        tahini.container.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 2])),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 2])),
         [],
         dict(index=[0], data=dict(a=[3])),
-        tahini.container.ContainerDataIndexed(index=[0, 1], data=dict(a=[3, 2])),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1], data=dict(a=[3, 2])),
     ),
     # new additional column
     (
-        tahini.container.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 2])),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 2])),
         [],
         dict(index=[0, 1], data=dict(b=[2, 3])),
-        tahini.container.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 2], b=[2, 3])),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 2], b=[2, 3])),
     ),
     # row update
     (
-        tahini.container.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 2], b=[2, 3])),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1], data=dict(a=[1, 2], b=[2, 3])),
         [],
         dict(index=[0], data=dict(a=[4], b=[5])),
-        tahini.container.ContainerDataIndexed(index=[0, 1], data=dict(a=[4, 2], b=[5, 3])),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1], data=dict(a=[4, 2], b=[5, 3])),
     ),
 ])
 def test_container_data_indexed_update(container, args, kwargs, expected):
     container = container.update(*args, **kwargs)
-    tahini.testing.assert_container_equal(container, expected)
+    tahini.testing.testing.assert_container_equal(container, expected)
 
 
 @pytest.mark.parametrize('container, args, kwargs, type_error, message_error', [
     # missing map multiple
     (
-        tahini.container.ContainerDataIndexed(index=[0, 1]),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1]),
         [],
         dict(mapper={}),
         ValueError,
@@ -576,46 +617,61 @@ def test_container_data_indexed_map_error(container, args, kwargs, type_error, m
 
 @pytest.mark.parametrize('container, args, kwargs, expected', [
     # empty
-    (tahini.container.ContainerDataIndexed(), [], dict(), tahini.container.ContainerDataIndexed()),
+    (tahini.core.base.ContainerDataIndexed(), [], dict(), tahini.core.base.ContainerDataIndexed()),
     # empty inputs
-    (tahini.container.ContainerDataIndexed(index=[0]), [], dict(), tahini.container.ContainerDataIndexed(index=[0])),
+    (
+        tahini.core.base.ContainerDataIndexed(index=[0]),
+        [],
+        dict(),
+        tahini.core.base.ContainerDataIndexed(index=[0]),
+    ),
     # empty container
-    (tahini.container.ContainerDataIndexed(), [], dict(mapper=dict()), tahini.container.ContainerDataIndexed()),
-    (tahini.container.ContainerDataIndexed(), [], dict(mapper=dict(a=1)), tahini.container.ContainerDataIndexed()),
+    (
+        tahini.core.base.ContainerDataIndexed(),
+        [],
+        dict(mapper=dict()),
+        tahini.core.base.ContainerDataIndexed(),
+    ),
+    (
+        tahini.core.base.ContainerDataIndexed(),
+        [],
+        dict(mapper=dict(a=1)),
+        tahini.core.base.ContainerDataIndexed(),
+    ),
     # non empty
     (
-        tahini.container.ContainerDataIndexed(index=[0]),
+        tahini.core.base.ContainerDataIndexed(index=[0]),
         [],
-        dict(mapper={0: 1}), tahini.container.ContainerDataIndexed(index=[1]),
+        dict(mapper={0: 1}), tahini.core.base.ContainerDataIndexed(index=[1]),
     ),
     # change index type
     (
-        tahini.container.ContainerDataIndexed(index=[0, 1]),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1]),
         [],
         dict(mapper={0: 'a', 1: 'b'}),
-        tahini.container.ContainerDataIndexed(index=['a', 'b']),
+        tahini.core.base.ContainerDataIndexed(index=['a', 'b']),
     ),
     # missing map
     (
-        tahini.container.ContainerDataIndexed(index=[0, 1]),
+        tahini.core.base.ContainerDataIndexed(index=[0, 1]),
         [],
         dict(mapper={0: 'a'}),
-        tahini.container.ContainerDataIndexed(index=['a', nan]),
+        tahini.core.base.ContainerDataIndexed(index=['a', nan]),
     ),
 ])
 def test_container_data_indexed_map(container, args, kwargs, expected):
     container = container.map(*args, **kwargs)
-    tahini.testing.assert_container_equal(container, expected)
+    tahini.testing.testing.assert_container_equal(container, expected)
 
 
 @pytest.mark.parametrize('container, expected', [
-    (tahini.container.ContainerDataIndexed(), f'ContainerDataIndexed(index={get_data_frame().index})'),
+    (tahini.core.base.ContainerDataIndexed(), f'ContainerDataIndexed(index={get_data_frame().index})'),
     (
-        tahini.container.ContainerDataIndexedMulti(),
+        tahini.core.base.ContainerDataIndexedMulti(),
         f'ContainerDataIndexedMulti(index={get_data_frame_index_multi().index})',
     ),
     (
-        tahini.container.ContainerDataIndexedMultiSets(),
+        tahini.core.base.ContainerDataIndexedMultiSets(),
         f'ContainerDataIndexedMultiSets(index={get_data_frame_index_multi().index})',
     ),
 ])
@@ -626,13 +682,16 @@ def test_container_data_indexed_repr(container, expected):
 
 @pytest.mark.parametrize('container, expected', [
     # empty
-    (tahini.container.ContainerDataIndexed(), []),
-    (tahini.container.ContainerDataIndexedMulti(), []),
-    (tahini.container.ContainerDataIndexedMultiSets(), []),
+    (tahini.core.base.ContainerDataIndexed(), []),
+    (tahini.core.base.ContainerDataIndexedMulti(), []),
+    (tahini.core.base.ContainerDataIndexedMultiSets(), []),
     # non empty
-    (tahini.container.ContainerDataIndexed(index=[0]), [0]),
-    (tahini.container.ContainerDataIndexedMulti(index=[(0, 1), (0, 2)]), [(0, 1), (0, 2)]),
-    (tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1), (0, 2)]), [frozenset((0, 1)), frozenset((0, 2))]),
+    (tahini.core.base.ContainerDataIndexed(index=[0]), [0]),
+    (tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1), (0, 2)]), [(0, 1), (0, 2)]),
+    (
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1), (0, 2)]),
+        [frozenset((0, 1)), frozenset((0, 2))],
+    ),
 ])
 def test_container_data_indexed_iter(container, expected):
     assert [item for item in container.iter()] == expected
@@ -641,19 +700,19 @@ def test_container_data_indexed_iter(container, expected):
 
 @pytest.mark.parametrize('container, item, expected', [
     # not in empty
-    (tahini.container.ContainerDataIndexed(), 0, False),
-    (tahini.container.ContainerDataIndexedMulti(), (0, 1), False),
-    (tahini.container.ContainerDataIndexedMultiSets(), (0, 1), False),
+    (tahini.core.base.ContainerDataIndexed(), 0, False),
+    (tahini.core.base.ContainerDataIndexedMulti(), (0, 1), False),
+    (tahini.core.base.ContainerDataIndexedMultiSets(), (0, 1), False),
     # contains
-    (tahini.container.ContainerDataIndexed(index=[0]), 0, True),
-    (tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]), (0, 1), True),
-    (tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]), (0, 1), True),
-    (tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]), (1, 0), True),
+    (tahini.core.base.ContainerDataIndexed(index=[0]), 0, True),
+    (tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]), (0, 1), True),
+    (tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]), (0, 1), True),
+    (tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]), (1, 0), True),
     # not contains
-    (tahini.container.ContainerDataIndexed(index=[0]), 1, False),
-    (tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]), (0, 2), False),
-    (tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]), (1, 0), False),
-    (tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]), (0, 2), False),
+    (tahini.core.base.ContainerDataIndexed(index=[0]), 1, False),
+    (tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]), (0, 2), False),
+    (tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]), (1, 0), False),
+    (tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]), (0, 2), False),
 ])
 def test_container_data_indexed_contains(container, item, expected):
     assert (item in container) == expected
@@ -661,13 +720,13 @@ def test_container_data_indexed_contains(container, item, expected):
 
 @pytest.mark.parametrize('container, expected', [
     # empty
-    (tahini.container.ContainerDataIndexed(), 0),
-    (tahini.container.ContainerDataIndexedMulti(), 0),
-    (tahini.container.ContainerDataIndexedMultiSets(), 0),
+    (tahini.core.base.ContainerDataIndexed(), 0),
+    (tahini.core.base.ContainerDataIndexedMulti(), 0),
+    (tahini.core.base.ContainerDataIndexedMultiSets(), 0),
     # non empty
-    (tahini.container.ContainerDataIndexed(index=[0]), 1),
-    (tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]), 1),
-    (tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]), 1),
+    (tahini.core.base.ContainerDataIndexed(index=[0]), 1),
+    (tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]), 1),
+    (tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]), 1),
 ])
 def test_container_data_indexed_len(container, expected):
     assert len(container) == expected
@@ -675,42 +734,54 @@ def test_container_data_indexed_len(container, expected):
 
 @pytest.mark.parametrize('container_left, container_right, expected', [
     # empty
-    (tahini.container.ContainerDataIndexed(), tahini.container.ContainerDataIndexed(), True),
-    (tahini.container.ContainerDataIndexedMulti(), tahini.container.ContainerDataIndexedMulti(), True),
-    (tahini.container.ContainerDataIndexedMultiSets(), tahini.container.ContainerDataIndexedMultiSets(), True),
+    (tahini.core.base.ContainerDataIndexed(), tahini.core.base.ContainerDataIndexed(), True),
+    (tahini.core.base.ContainerDataIndexedMulti(), tahini.core.base.ContainerDataIndexedMulti(), True),
+    (
+        tahini.core.base.ContainerDataIndexedMultiSets(),
+        tahini.core.base.ContainerDataIndexedMultiSets(),
+        True,
+    ),
     # non empty
-    (tahini.container.ContainerDataIndexed(index=[0]), tahini.container.ContainerDataIndexed(index=[0]), True),
     (
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]),
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexed(index=[0]),
+        tahini.core.base.ContainerDataIndexed(index=[0]),
         True,
     ),
     (
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]),
         True,
     ),
     (
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
-        tahini.container.ContainerDataIndexedMultiSets(index=[(1, 0)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+        True,
+    ),
+    (
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(1, 0)]),
         True,
     ),
     # empty versus non empty
-    (tahini.container.ContainerDataIndexed(), tahini.container.ContainerDataIndexed(index=[0]), False),
+    (tahini.core.base.ContainerDataIndexed(), tahini.core.base.ContainerDataIndexed(index=[0]), False),
     # None right
-    (tahini.container.ContainerDataIndexed(), None, False),
+    (tahini.core.base.ContainerDataIndexed(), None, False),
     # None left
-    (None, tahini.container.ContainerDataIndexed(), False),
+    (None, tahini.core.base.ContainerDataIndexed(), False),
     # different order
-    (tahini.container.ContainerDataIndexed(index=[1, 2]), tahini.container.ContainerDataIndexed(index=[2, 1]), True),
     (
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1), (0, 2)]),
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 2), (0, 1)]),
+        tahini.core.base.ContainerDataIndexed(index=[1, 2]),
+        tahini.core.base.ContainerDataIndexed(index=[2, 1]),
         True,
     ),
     (
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1), (0, 2)]),
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 2), (0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1), (0, 2)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 2), (0, 1)]),
+        True,
+    ),
+    (
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1), (0, 2)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 2), (0, 1)]),
         True,
     ),
 ])
@@ -729,7 +800,7 @@ def test_container_data_indexed_eq(container_left, container_right, expected):
     ),
 ])
 def test_container_data_indexed_multi__create_index_internal(args, kwargs, expected):
-    index = tahini.container.ContainerDataIndexedMulti._create_index_internal(*args, **kwargs)
+    index = tahini.core.base.ContainerDataIndexedMulti._create_index_internal(*args, **kwargs)
     assert_index_equal(index, expected)
 
 
@@ -744,7 +815,7 @@ def test_container_data_indexed_multi__create_index_internal(args, kwargs, expec
 ])
 def test_container_data_indexed_multi__validate_index_error(args, kwargs, type_error, message_error):
     with pytest.raises(type_error) as e:
-        tahini.container.ContainerDataIndexedMulti._validate_index(*args, **kwargs)
+        tahini.core.base.ContainerDataIndexedMulti._validate_index(*args, **kwargs)
     assert e.value.args[0] == message_error
 
 
@@ -769,7 +840,7 @@ def test_container_data_indexed_multi__validate_index_error(args, kwargs, type_e
     ),
 ])
 def test_container_data_indexed_multi__validate_index(args, kwargs, expected):
-    index = tahini.container.ContainerDataIndexedMulti._validate_index(*args, **kwargs)
+    index = tahini.core.base.ContainerDataIndexedMulti._validate_index(*args, **kwargs)
     assert_index_equal(index, expected)
 
 
@@ -785,7 +856,7 @@ def test_container_data_indexed_multi__validate_index(args, kwargs, expected):
 ])
 def test_container_data_indexed_multi_init_error(args, kwargs, type_error, message_error):
     with pytest.raises(type_error) as e:
-        tahini.container.ContainerDataIndexedMulti(*args, **kwargs)
+        tahini.core.base.ContainerDataIndexedMulti(*args, **kwargs)
     assert e.value.args[0] == message_error
 
 
@@ -802,18 +873,18 @@ def test_container_data_indexed_multi_init_error(args, kwargs, type_error, messa
     ([], dict(index=[(0, 1), (1, 0)]), get_data_frame_internal_index_multi(index=[(0, 1), (1, 0)])),
 ])
 def test_container_data_indexed_multi_init(args, kwargs, expected):
-    container = tahini.container.ContainerDataIndexedMulti(*args, **kwargs)
+    container = tahini.core.base.ContainerDataIndexedMulti(*args, **kwargs)
     assert_frame_equal(container.data_internal, expected)
 
 
 @pytest.mark.parametrize('container, expected', [
     # empty
-    (tahini.container.ContainerDataIndexedMulti(), get_data_frame_index_multi()),
+    (tahini.core.base.ContainerDataIndexedMulti(), get_data_frame_index_multi()),
     # non empty
-    (tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]), get_data_frame_index_multi(index=[(0, 1)])),
+    (tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]), get_data_frame_index_multi(index=[(0, 1)])),
     # column
     (
-        tahini.container.ContainerDataIndexedMulti(data=dict(a=[1]), index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(data=dict(a=[1]), index=[(0, 1)]),
         get_data_frame_index_multi(data=dict(a=[1]), index=[(0, 1)]),
     ),
 ])
@@ -823,15 +894,15 @@ def test_container_data_indexed_multi_data(container, expected):
 
 @pytest.mark.parametrize('container, expected', [
     # empty
-    (tahini.container.ContainerDataIndexedMulti(), get_data_frame_internal_index_multi()),
+    (tahini.core.base.ContainerDataIndexedMulti(), get_data_frame_internal_index_multi()),
     # non empty
     (
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]),
         get_data_frame_internal_index_multi(index=[(0, 1)]),
     ),
     # column
     (
-        tahini.container.ContainerDataIndexedMulti(data=dict(a=[1]), index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(data=dict(a=[1]), index=[(0, 1)]),
         get_data_frame_internal_index_multi(data=dict(a=[1]), index=[(0, 1)]),
     ),
 ])
@@ -841,15 +912,15 @@ def test_container_data_indexed_multi_data_internal(container, expected):
 
 @pytest.mark.parametrize('container, expected', [
     # empty
-    (tahini.container.ContainerDataIndexedMulti(), get_data_frame_internal_simple_index_multi()),
+    (tahini.core.base.ContainerDataIndexedMulti(), get_data_frame_internal_simple_index_multi()),
     # non empty
     (
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]),
         get_data_frame_internal_simple_index_multi(index=[(0, 1)]),
     ),
     # column
     (
-        tahini.container.ContainerDataIndexedMulti(data=dict(a=[1]), index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(data=dict(a=[1]), index=[(0, 1)]),
         get_data_frame_internal_simple_index_multi(data=dict(a=[1]), index=[(0, 1)]),
     ),
 ])
@@ -860,7 +931,7 @@ def test_container_data_indexed_multi_data_testing(container, expected):
 @pytest.mark.parametrize('container, args, kwargs, type_error, message_error', [
     # index flat
     (
-        tahini.container.ContainerDataIndexedMulti(),
+        tahini.core.base.ContainerDataIndexedMulti(),
         [],
         dict(index=[0]),
         TypeError,
@@ -868,7 +939,7 @@ def test_container_data_indexed_multi_data_testing(container, expected):
     ),
     # index not exist
     (
-        tahini.container.ContainerDataIndexedMulti(),
+        tahini.core.base.ContainerDataIndexedMulti(),
         [],
         dict(index=[(0, 1)]),
         KeyError,
@@ -883,104 +954,104 @@ def test_container_data_indexed_multi_drop_error(container, args, kwargs, type_e
 
 @pytest.mark.parametrize('container, args, kwargs, expected', [
     # empty
-    (tahini.container.ContainerDataIndexedMulti(), [], dict(), tahini.container.ContainerDataIndexedMulti()),
+    (tahini.core.base.ContainerDataIndexedMulti(), [], dict(), tahini.core.base.ContainerDataIndexedMulti()),
     # empty container ignore error
     (
-        tahini.container.ContainerDataIndexedMulti(),
+        tahini.core.base.ContainerDataIndexedMulti(),
         [],
         dict(index=[(0, 1)], errors='ignore'),
-        tahini.container.ContainerDataIndexedMulti(),
+        tahini.core.base.ContainerDataIndexedMulti(),
     ),
     # empty inputs
     (
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]),
         [],
         dict(),
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]),
     ),
     # non empty
     (
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]),
         [],
         dict(index=[(0, 1)]),
-        tahini.container.ContainerDataIndexedMulti(),
+        tahini.core.base.ContainerDataIndexedMulti(),
     ),
     (
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1), (0, 2)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1), (0, 2)]),
         [],
         dict(index=[(0, 1), (0, 2)]),
-        tahini.container.ContainerDataIndexedMulti(),
+        tahini.core.base.ContainerDataIndexedMulti(),
     ),
     (
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1), (0, 2)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1), (0, 2)]),
         [],
         dict(index=[(0, 2)]),
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]),
     ),
     # order matters
     (
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]),
         [],
         dict(index=[(1, 0)], errors='ignore'),
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]),
     ),
     # drop columns
     (
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1)], columns=['a']),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)], columns=['a']),
         [],
         dict(columns=['a']),
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]),
     ),
 ])
 def test_container_data_indexed_multi_drop(container, args, kwargs, expected):
     container = container.drop(*args, **kwargs)
-    tahini.testing.assert_container_equal(container, expected)
+    tahini.testing.testing.assert_container_equal(container, expected)
 
 
 @pytest.mark.parametrize('container, args, kwargs, expected', [
     # empty
-    (tahini.container.ContainerDataIndexedMulti(), [], dict(), tahini.container.ContainerDataIndexedMulti()),
+    (tahini.core.base.ContainerDataIndexedMulti(), [], dict(), tahini.core.base.ContainerDataIndexedMulti()),
     # empty inputs
     (
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]),
         [],
         dict(),
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]),
     ),
     # non empty
     (
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]),
         [],
         dict(index=[(0, 2)]),
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1), (0, 2)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1), (0, 2)]),
     ),
     # order matters
     (
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1)]),
         [],
         dict(index=[(1, 0)]),
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1), (1, 0)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1), (1, 0)]),
     ),
 ])
 def test_container_data_indexed_multi_update(container, args, kwargs, expected):
     container = container.update(*args, **kwargs)
-    tahini.testing.assert_container_equal(container, expected)
+    tahini.testing.testing.assert_container_equal(container, expected)
 
 
 @pytest.mark.parametrize('container, args, kwargs, expected', [
     # empty
-    (tahini.container.ContainerDataIndexedMulti(), [], dict(), tahini.container.ContainerDataIndexedMulti()),
+    (tahini.core.base.ContainerDataIndexedMulti(), [], dict(), tahini.core.base.ContainerDataIndexedMulti()),
     # non empty
     (
-        tahini.container.ContainerDataIndexedMulti(index=[(0, 1), (0, 2)]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[(0, 1), (0, 2)]),
         [],
         dict(mapper={0: 'a', 1: 'b', 2: 'c'}),
-        tahini.container.ContainerDataIndexedMulti(index=[('a', 'b'), ('a', 'c')]),
+        tahini.core.base.ContainerDataIndexedMulti(index=[('a', 'b'), ('a', 'c')]),
     ),
 ])
 def test_container_data_indexed_multi_map(container, args, kwargs, expected):
     container = container.map(*args, **kwargs)
-    tahini.testing.assert_container_equal(container, expected)
+    tahini.testing.testing.assert_container_equal(container, expected)
 
 
 @pytest.mark.parametrize('args, kwargs, type_error, message_error', [
@@ -995,7 +1066,7 @@ def test_container_data_indexed_multi_map(container, args, kwargs, expected):
 ])
 def test_container_data_indexed_multi_sets_init_error(args, kwargs, type_error, message_error):
     with pytest.raises(type_error) as e:
-        tahini.container.ContainerDataIndexedMultiSets(*args, **kwargs)
+        tahini.core.base.ContainerDataIndexedMultiSets(*args, **kwargs)
     assert e.value.args[0] == message_error
 
 
@@ -1008,18 +1079,18 @@ def test_container_data_indexed_multi_sets_init_error(args, kwargs, type_error, 
     ([], dict(index=[(0, 1), (0, 2)]), get_data_frame_internal_index_multi_sets(index=[(0, 1), (0, 2)])),
 ])
 def test_container_data_indexed_multi_sets_init(args, kwargs, expected):
-    container = tahini.container.ContainerDataIndexedMultiSets(*args, **kwargs)
+    container = tahini.core.base.ContainerDataIndexedMultiSets(*args, **kwargs)
     assert_frame_equal(container.data_internal, expected)
 
 
 @pytest.mark.parametrize('container, expected', [
     # empty
-    (tahini.container.ContainerDataIndexedMultiSets(), get_data_frame_index_multi()),
+    (tahini.core.base.ContainerDataIndexedMultiSets(), get_data_frame_index_multi()),
     # non empty
-    (tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]), get_data_frame_index_multi(index=[(0, 1)])),
+    (tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]), get_data_frame_index_multi(index=[(0, 1)])),
     # column
     (
-        tahini.container.ContainerDataIndexedMultiSets(data=dict(a=[1]), index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(data=dict(a=[1]), index=[(0, 1)]),
         get_data_frame_index_multi(data=dict(a=[1]), index=[(0, 1)]),
     ),
 ])
@@ -1029,16 +1100,16 @@ def test_container_data_indexed_multi_sets_data(container, expected):
 
 @pytest.mark.parametrize('container, expected', [
     # empty
-    (tahini.container.ContainerDataIndexedMultiSets(), get_data_frame_internal_index_multi_sets()),
+    (tahini.core.base.ContainerDataIndexedMultiSets(), get_data_frame_internal_index_multi_sets()),
     # non empty
     (
-            tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
-            get_data_frame_internal_index_multi_sets(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+        get_data_frame_internal_index_multi_sets(index=[(0, 1)]),
     ),
     # column
     (
-            tahini.container.ContainerDataIndexedMultiSets(data=dict(a=[1]), index=[(0, 1)]),
-            get_data_frame_internal_index_multi_sets(data=dict(a=[1]), index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(data=dict(a=[1]), index=[(0, 1)]),
+        get_data_frame_internal_index_multi_sets(data=dict(a=[1]), index=[(0, 1)]),
     ),
 ])
 def test_container_data_indexed_multi_sets_data_internal(container, expected):
@@ -1047,16 +1118,16 @@ def test_container_data_indexed_multi_sets_data_internal(container, expected):
 
 @pytest.mark.parametrize('container, expected', [
     # empty
-    (tahini.container.ContainerDataIndexedMultiSets(), get_data_frame_internal_simple_index_multi_sets()),
+    (tahini.core.base.ContainerDataIndexedMultiSets(), get_data_frame_internal_simple_index_multi_sets()),
     # non empty
     (
-            tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
-            get_data_frame_internal_simple_index_multi_sets(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+        get_data_frame_internal_simple_index_multi_sets(index=[(0, 1)]),
     ),
     # column
     (
-            tahini.container.ContainerDataIndexedMultiSets(data=dict(a=[1]), index=[(0, 1)]),
-            get_data_frame_internal_simple_index_multi_sets(data=dict(a=[1]), index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(data=dict(a=[1]), index=[(0, 1)]),
+        get_data_frame_internal_simple_index_multi_sets(data=dict(a=[1]), index=[(0, 1)]),
     ),
 ])
 def test_container_data_indexed_multi_sets_data_testing(container, expected):
@@ -1066,7 +1137,7 @@ def test_container_data_indexed_multi_sets_data_testing(container, expected):
 @pytest.mark.parametrize('container, args, kwargs, type_error, message_error', [
     # index flat
     (
-        tahini.container.ContainerDataIndexedMultiSets(),
+        tahini.core.base.ContainerDataIndexedMultiSets(),
         [],
         dict(index=[0]),
         TypeError,
@@ -1074,7 +1145,7 @@ def test_container_data_indexed_multi_sets_data_testing(container, expected):
     ),
     # index not exist
     (
-        tahini.container.ContainerDataIndexedMultiSets(),
+        tahini.core.base.ContainerDataIndexedMultiSets(),
         [],
         dict(index=[(0, 1)]),
         KeyError,
@@ -1089,69 +1160,74 @@ def test_container_data_indexed_multi_sets_drop_error(container, args, kwargs, t
 
 @pytest.mark.parametrize('container, args, kwargs, expected', [
     # empty
-    (tahini.container.ContainerDataIndexedMultiSets(), [], dict(), tahini.container.ContainerDataIndexedMultiSets()),
+    (
+        tahini.core.base.ContainerDataIndexedMultiSets(),
+        [],
+        dict(),
+        tahini.core.base.ContainerDataIndexedMultiSets(),
+    ),
     # empty container ignore error
     (
-        tahini.container.ContainerDataIndexedMultiSets(),
+        tahini.core.base.ContainerDataIndexedMultiSets(),
         [],
         dict(index=[(0, 1)], errors='ignore'),
-        tahini.container.ContainerDataIndexedMultiSets(),
+        tahini.core.base.ContainerDataIndexedMultiSets(),
     ),
     # empty inputs
     (
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
         [],
         dict(),
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
     ),
     # non empty
     (
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
         [],
         dict(index=[(0, 1)]),
-        tahini.container.ContainerDataIndexedMultiSets(),
+        tahini.core.base.ContainerDataIndexedMultiSets(),
     ),
     (
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1), (0, 2)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1), (0, 2)]),
         [],
         dict(index=[(0, 1), (0, 2)]),
-        tahini.container.ContainerDataIndexedMultiSets(),
+        tahini.core.base.ContainerDataIndexedMultiSets(),
     ),
     (
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1), (0, 2)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1), (0, 2)]),
         [],
         dict(index=[(0, 2)]),
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
     ),
     # order does not matter
     (
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
         [],
         dict(index=[(1, 0)]),
-        tahini.container.ContainerDataIndexedMultiSets(),
+        tahini.core.base.ContainerDataIndexedMultiSets(),
     ),
     # drop columns
     (
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)], columns=['a']),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)], columns=['a']),
         [],
         dict(columns=['a']),
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
     ),
 ])
 def test_container_data_indexed_multi_sets_drop(container, args, kwargs, expected):
     container = container.drop(*args, **kwargs)
-    tahini.testing.assert_container_equal(container, expected)
+    tahini.testing.testing.assert_container_equal(container, expected)
 
 
 @pytest.mark.parametrize('container, args, kwargs, expected', [
     # empty
-    (tahini.container.ContainerDataIndexedMultiSets(), [], dict(), tahini.container.ContainerDataIndexedMultiSets()),
+    (tahini.core.base.ContainerDataIndexedMultiSets(), [], dict(), tahini.core.base.ContainerDataIndexedMultiSets()),
     # empty inputs
     (
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
         [],
         dict(),
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
     ),
     # todo fix this test
     # (
@@ -1162,35 +1238,40 @@ def test_container_data_indexed_multi_sets_drop(container, args, kwargs, expecte
     # ),
     # non empty
     (
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
         [],
         dict(index=[(0, 2)]),
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 2), (0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 2), (0, 1)]),
     ),
     # order does not matter
     (
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
         [],
         dict(index=[(1, 0)]),
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1)]),
     ),
 ])
 def test_container_data_indexed_multi_sets_update(container, args, kwargs, expected):
     container = container.update(*args, **kwargs)
-    tahini.testing.assert_container_equal(container, expected)
+    tahini.testing.testing.assert_container_equal(container, expected)
 
 
 @pytest.mark.parametrize('container, args, kwargs, expected', [
     # empty
-    (tahini.container.ContainerDataIndexedMultiSets(), [], dict(), tahini.container.ContainerDataIndexedMultiSets()),
+    (
+        tahini.core.base.ContainerDataIndexedMultiSets(),
+        [],
+        dict(),
+        tahini.core.base.ContainerDataIndexedMultiSets(),
+    ),
     # non empty
     (
-        tahini.container.ContainerDataIndexedMultiSets(index=[(0, 1), (0, 2)]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[(0, 1), (0, 2)]),
         [],
         dict(mapper={0: 'a', 1: 'b', 2: 'c'}),
-        tahini.container.ContainerDataIndexedMultiSets(index=[('a', 'b'), ('a', 'c')]),
+        tahini.core.base.ContainerDataIndexedMultiSets(index=[('a', 'b'), ('a', 'c')]),
     ),
 ])
 def test_container_data_indexed_multi_sets_map(container, args, kwargs, expected):
     container = container.map(*args, **kwargs)
-    tahini.testing.assert_container_equal(container, expected)
+    tahini.testing.testing.assert_container_equal(container, expected)

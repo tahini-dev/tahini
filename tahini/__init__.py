@@ -1,12 +1,11 @@
-from pkg_resources import get_distribution as _get_distribution
+from .meta import (
+    __author__,
+    __version__
+)
 
-__author__ = 'tahini-dev'
-__version__ = _get_distribution('tahini').version
+from .core.graph import *
 
 from . import (
-    core,
     testing,
     plot,
 )
-
-from .core import *
