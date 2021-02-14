@@ -7,5 +7,4 @@ from .core.graph import *
 
 from . import (
     testing,
-    plot,
 )
