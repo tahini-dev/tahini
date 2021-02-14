@@ -49,10 +49,10 @@ def test_base_get_data_frame_plot(engine, args, kwargs, expected):
 
 
 @pytest.mark.parametrize('engine, args, kwargs', [
-    # empty
-    (tahini.plot.engine.Plotly(graph=tahini.core.graph.Graph()), [], dict()),
     # non empty graph
     (tahini.plot.engine.Plotly(graph=tahini.core.graph.Graph(order=10)), [], dict()),
+    # empty
+    (tahini.plot.engine.Plotly(graph=tahini.core.graph.Graph()), [], dict()),
 ])
 def test_plot(engine, args, kwargs):
     fig = engine.plot(*args, **kwargs)
