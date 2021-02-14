@@ -17,6 +17,7 @@ class Base:
 
     def get_data_frame_plot(
             self,
+            *args,
             **kwargs,
     ) -> pd.DataFrame:
         df = self.graph.nodes.update(data=self.graph.nodes.get_positions()).data
@@ -30,9 +31,9 @@ class Plotly(Base):
 
     def plot(
             self,
-            df: Optional[pd.DataFrame],
-            x: Optional[str],
-            y: Optional[str],
+            df: Optional[pd.DataFrame] = None,
+            x: Optional[str] = None,
+            y: Optional[str] = None,
             **kwargs,
     ):
         import plotly.express as px
@@ -46,11 +47,15 @@ class Plotly(Base):
         if y is None:
             y = 'position_dim_1'
 
-        fig = px.scatter(
-            df,
-            x=x,
-            y=y,
-            **kwargs,
+        fig = (
+            px.scatter(
+                df,
+                x=x,
+                y=y,
+                **kwargs,
+            )
+            .update_xaxes(visible=False, showgrid=False)
+            .update_yaxes(visible=False, showgrid=False)
         )
 
         return fig

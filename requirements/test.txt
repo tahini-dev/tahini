@@ -1,4 +1,4 @@
 pytest
 pytest-cov
 hypothesis[pandas]
--e .
+-e .[all]

@@ -2,6 +2,7 @@ from functools import partial
 
 import pytest
 import pandas as pd
+import plotly.graph_objects as go
 
 import tahini.plot.engine
 import tahini.core.graph
@@ -45,3 +46,14 @@ def test_base_init(args, kwargs, expected):
 def test_base_get_data_frame_plot(engine, args, kwargs, expected):
     df = engine.get_data_frame_plot(*args, **kwargs)
     assert_frame_equal(df, expected)
+
+
+@pytest.mark.parametrize('engine, args, kwargs', [
+    # empty
+    (tahini.plot.engine.Plotly(graph=tahini.core.graph.Graph()), [], dict()),
+    # non empty graph
+    (tahini.plot.engine.Plotly(graph=tahini.core.graph.Graph(order=10)), [], dict()),
+])
+def test_plot(engine, args, kwargs):
+    fig = engine.plot(*args, **kwargs)
+    assert isinstance(fig, go.Figure)
