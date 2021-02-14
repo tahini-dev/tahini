@@ -39,184 +39,11 @@
 <div class="section" id="tahini-accessor-module">
 <h2>tahini.accessor module<a class="headerlink" href="#tahini-accessor-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-tahini.container">
-<span id="tahini-container-module"></span><h2>tahini.container module<a class="headerlink" href="#module-tahini.container" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt id="tahini.container.ContainerDataIndexed">
-<em class="property">class </em><code class="sig-prename descclassname">tahini.container.</code><code class="sig-name descname">ContainerDataIndexed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>TypeContainerDataIndexed<span class="p">, </span>pandas.core.indexes.base.Index<span class="p">, </span>Iterable<span class="p">[</span>Hashable<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span>Dict<span class="p">, </span>collections.abc.Iterable<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tahini.container.ContainerDataIndexed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Collection</span></code></p>
-<dl class="py method">
-<dt id="tahini.container.ContainerDataIndexed.data">
-<em class="property">property </em><code class="sig-name descname">data</code><a class="headerlink" href="#tahini.container.ContainerDataIndexed.data" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.container.ContainerDataIndexed.data_internal">
-<em class="property">property </em><code class="sig-name descname">data_internal</code><a class="headerlink" href="#tahini.container.ContainerDataIndexed.data_internal" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.container.ContainerDataIndexed.data_testing">
-<em class="property">property </em><code class="sig-name descname">data_testing</code><a class="headerlink" href="#tahini.container.ContainerDataIndexed.data_testing" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.container.ContainerDataIndexed.drop">
-<code class="sig-name descname">drop</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>TypeContainerDataIndexed<span class="p">, </span>pandas.core.indexes.base.Index<span class="p">, </span>Iterable<span class="p">[</span>Hashable<span class="p">]</span><span class="p">, </span>pandas.core.indexes.multi.MultiIndex<span class="p">, </span>Iterable<span class="p">[</span>Sequence<span class="p">[</span>Hashable<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; TypeContainerDataIndexed<a class="headerlink" href="#tahini.container.ContainerDataIndexed.drop" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.container.ContainerDataIndexed.iter">
-<code class="sig-name descname">iter</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; collections.abc.Iterable<a class="headerlink" href="#tahini.container.ContainerDataIndexed.iter" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.container.ContainerDataIndexed.map">
-<code class="sig-name descname">map</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mapper</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>Callable<span class="p">, </span>Dict<span class="p">, </span>pandas.core.series.Series<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; TypeContainerDataIndexed<a class="headerlink" href="#tahini.container.ContainerDataIndexed.map" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.container.ContainerDataIndexed.update">
-<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>TypeContainerDataIndexed<span class="p">, </span>pandas.core.indexes.base.Index<span class="p">, </span>Iterable<span class="p">[</span>Hashable<span class="p">]</span><span class="p">, </span>pandas.core.indexes.multi.MultiIndex<span class="p">, </span>Iterable<span class="p">[</span>Sequence<span class="p">[</span>Hashable<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span>Dict<span class="p">, </span>collections.abc.Iterable<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">func</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Callable<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; TypeContainerDataIndexed<a class="headerlink" href="#tahini.container.ContainerDataIndexed.update" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="tahini.container.ContainerDataIndexedMulti">
-<em class="property">class </em><code class="sig-prename descclassname">tahini.container.</code><code class="sig-name descname">ContainerDataIndexedMulti</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>TypeContainerDataIndexed<span class="p">, </span>pandas.core.indexes.multi.MultiIndex<span class="p">, </span>Iterable<span class="p">[</span>Sequence<span class="p">[</span>Hashable<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tahini.container.ContainerDataIndexedMulti" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#tahini.container.ContainerDataIndexed" title="tahini.container.ContainerDataIndexed"><code class="xref py py-class docutils literal notranslate"><span class="pre">tahini.container.ContainerDataIndexed</span></code></a></p>
-</dd></dl>
-
-<dl class="py class">
-<dt id="tahini.container.ContainerDataIndexedMultiSets">
-<em class="property">class </em><code class="sig-prename descclassname">tahini.container.</code><code class="sig-name descname">ContainerDataIndexedMultiSets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>TypeContainerDataIndexed<span class="p">, </span>pandas.core.indexes.multi.MultiIndex<span class="p">, </span>Iterable<span class="p">[</span>Sequence<span class="p">[</span>Hashable<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tahini.container.ContainerDataIndexedMultiSets" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#tahini.container.ContainerDataIndexedMulti" title="tahini.container.ContainerDataIndexedMulti"><code class="xref py py-class docutils literal notranslate"><span class="pre">tahini.container.ContainerDataIndexedMulti</span></code></a></p>
-</dd></dl>
-
+<div class="section" id="tahini-container-module">
+<h2>tahini.container module<a class="headerlink" href="#tahini-container-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-tahini.core">
 <span id="tahini-core-module"></span><h2>tahini.core module<a class="headerlink" href="#module-tahini.core" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt id="tahini.core.Edges">
-<em class="property">class </em><code class="sig-prename descclassname">tahini.core.</code><code class="sig-name descname">Edges</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>TypeContainerDataIndexed<span class="p">, </span>pandas.core.indexes.multi.MultiIndex<span class="p">, </span>Iterable<span class="p">[</span>Sequence<span class="p">[</span>Hashable<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tahini.core.Edges" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#tahini.container.ContainerDataIndexedMulti" title="tahini.container.ContainerDataIndexedMulti"><code class="xref py py-class docutils literal notranslate"><span class="pre">tahini.container.ContainerDataIndexedMulti</span></code></a></p>
-<dl class="py method">
-<dt id="tahini.core.Edges.keep_nodes">
-<code class="sig-name descname">keep_nodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nodes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="#tahini.core.Nodes" title="tahini.core.Nodes">tahini.core.Nodes</a><span class="p">, </span>TypeContainerDataIndexed<span class="p">, </span>pandas.core.indexes.base.Index<span class="p">, </span>Iterable<span class="p">[</span>Hashable<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; TypeEdges<a class="headerlink" href="#tahini.core.Edges.keep_nodes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.core.Edges.nodes">
-<em class="property">property </em><code class="sig-name descname">nodes</code><a class="headerlink" href="#tahini.core.Edges.nodes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="tahini.core.Graph">
-<em class="property">class </em><code class="sig-prename descclassname">tahini.core.</code><code class="sig-name descname">Graph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nodes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="#tahini.core.Nodes" title="tahini.core.Nodes">tahini.core.Nodes</a><span class="p">, </span>TypeContainerDataIndexed<span class="p">, </span>pandas.core.indexes.base.Index<span class="p">, </span>Iterable<span class="p">[</span>Hashable<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">edges</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="#tahini.core.Edges" title="tahini.core.Edges">tahini.core.Edges</a><span class="p">, </span>TypeContainerDataIndexed<span class="p">, </span>pandas.core.indexes.multi.MultiIndex<span class="p">, </span>Iterable<span class="p">[</span>Sequence<span class="p">[</span>Hashable<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">order</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nodes_data</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span>Dict<span class="p">, </span>collections.abc.Iterable<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">edges_data</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span>Dict<span class="p">, </span>collections.abc.Iterable<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tahini.core.Graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py method">
-<dt id="tahini.core.Graph.assign">
-<code class="sig-name descname">assign</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nodes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="#tahini.core.Nodes" title="tahini.core.Nodes">tahini.core.Nodes</a><span class="p">, </span>Callable<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">edges</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="#tahini.core.Edges" title="tahini.core.Edges">tahini.core.Edges</a><span class="p">, </span>Callable<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; TypeGraph<a class="headerlink" href="#tahini.core.Graph.assign" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.core.Graph.complete">
-<em class="property">classmethod </em><code class="sig-name descname">complete</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">order</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nodes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="#tahini.core.Nodes" title="tahini.core.Nodes">tahini.core.Nodes</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; TypeGraph<a class="headerlink" href="#tahini.core.Graph.complete" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.core.Graph.cycle">
-<em class="property">classmethod </em><code class="sig-name descname">cycle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">order</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nodes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="#tahini.core.Nodes" title="tahini.core.Nodes">tahini.core.Nodes</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; TypeGraph<a class="headerlink" href="#tahini.core.Graph.cycle" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.core.Graph.drop_edges">
-<code class="sig-name descname">drop_edges</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">edges</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="#tahini.core.Edges" title="tahini.core.Edges">tahini.core.Edges</a><span class="p">, </span>TypeContainerDataIndexed<span class="p">, </span>pandas.core.indexes.multi.MultiIndex<span class="p">, </span>Iterable<span class="p">[</span>Sequence<span class="p">[</span>Hashable<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; TypeGraph<a class="headerlink" href="#tahini.core.Graph.drop_edges" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.core.Graph.drop_nodes">
-<code class="sig-name descname">drop_nodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nodes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="#tahini.core.Nodes" title="tahini.core.Nodes">tahini.core.Nodes</a><span class="p">, </span>TypeContainerDataIndexed<span class="p">, </span>pandas.core.indexes.base.Index<span class="p">, </span>Iterable<span class="p">[</span>Hashable<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; TypeGraph<a class="headerlink" href="#tahini.core.Graph.drop_nodes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.core.Graph.edges">
-<em class="property">property </em><code class="sig-name descname">edges</code><a class="headerlink" href="#tahini.core.Graph.edges" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.core.Graph.get_degree_by_node">
-<code class="sig-name descname">get_degree_by_node</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; pandas.core.series.Series<a class="headerlink" href="#tahini.core.Graph.get_degree_by_node" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.core.Graph.get_neighbors">
-<code class="sig-name descname">get_neighbors</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; pandas.core.series.Series<a class="headerlink" href="#tahini.core.Graph.get_neighbors" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.core.Graph.map_nodes">
-<code class="sig-name descname">map_nodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mapper</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>Callable<span class="p">, </span>Dict<span class="p">, </span>pandas.core.series.Series<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; TypeGraph<a class="headerlink" href="#tahini.core.Graph.map_nodes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.core.Graph.nodes">
-<em class="property">property </em><code class="sig-name descname">nodes</code><a class="headerlink" href="#tahini.core.Graph.nodes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.core.Graph.order">
-<em class="property">property </em><code class="sig-name descname">order</code><a class="headerlink" href="#tahini.core.Graph.order" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.core.Graph.path">
-<em class="property">classmethod </em><code class="sig-name descname">path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">order</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nodes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="#tahini.core.Nodes" title="tahini.core.Nodes">tahini.core.Nodes</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; TypeGraph<a class="headerlink" href="#tahini.core.Graph.path" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.core.Graph.size">
-<em class="property">property </em><code class="sig-name descname">size</code><a class="headerlink" href="#tahini.core.Graph.size" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.core.Graph.star">
-<em class="property">classmethod </em><code class="sig-name descname">star</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">order</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nodes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="#tahini.core.Nodes" title="tahini.core.Nodes">tahini.core.Nodes</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; TypeGraph<a class="headerlink" href="#tahini.core.Graph.star" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.core.Graph.update_edges">
-<code class="sig-name descname">update_edges</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">edges</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="#tahini.core.Edges" title="tahini.core.Edges">tahini.core.Edges</a><span class="p">, </span>TypeContainerDataIndexed<span class="p">, </span>pandas.core.indexes.multi.MultiIndex<span class="p">, </span>Iterable<span class="p">[</span>Sequence<span class="p">[</span>Hashable<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span>Dict<span class="p">, </span>collections.abc.Iterable<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; TypeGraph<a class="headerlink" href="#tahini.core.Graph.update_edges" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="tahini.core.Graph.update_nodes">
-<code class="sig-name descname">update_nodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nodes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="#tahini.core.Nodes" title="tahini.core.Nodes">tahini.core.Nodes</a><span class="p">, </span>TypeContainerDataIndexed<span class="p">, </span>pandas.core.indexes.base.Index<span class="p">, </span>Iterable<span class="p">[</span>Hashable<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span>Dict<span class="p">, </span>collections.abc.Iterable<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; TypeGraph<a class="headerlink" href="#tahini.core.Graph.update_nodes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="tahini.core.Nodes">
-<em class="property">class </em><code class="sig-prename descclassname">tahini.core.</code><code class="sig-name descname">Nodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>TypeContainerDataIndexed<span class="p">, </span>pandas.core.indexes.base.Index<span class="p">, </span>Iterable<span class="p">[</span>Hashable<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span>Dict<span class="p">, </span>collections.abc.Iterable<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">order</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tahini.core.Nodes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#tahini.container.ContainerDataIndexed" title="tahini.container.ContainerDataIndexed"><code class="xref py py-class docutils literal notranslate"><span class="pre">tahini.container.ContainerDataIndexed</span></code></a></p>
-</dd></dl>
-
-<dl class="py class">
-<dt id="tahini.core.UndirectedEdges">
-<em class="property">class </em><code class="sig-prename descclassname">tahini.core.</code><code class="sig-name descname">UndirectedEdges</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">index</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>TypeContainerDataIndexed<span class="p">, </span>pandas.core.indexes.multi.MultiIndex<span class="p">, </span>Iterable<span class="p">[</span>Sequence<span class="p">[</span>Hashable<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tahini.core.UndirectedEdges" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#tahini.container.ContainerDataIndexedMultiSets" title="tahini.container.ContainerDataIndexedMultiSets"><code class="xref py py-class docutils literal notranslate"><span class="pre">tahini.container.ContainerDataIndexedMultiSets</span></code></a>, <a class="reference internal" href="#tahini.core.Edges" title="tahini.core.Edges"><code class="xref py py-class docutils literal notranslate"><span class="pre">tahini.core.Edges</span></code></a></p>
-</dd></dl>
-
-<dl class="py class">
-<dt id="tahini.core.UndirectedGraph">
-<em class="property">class </em><code class="sig-prename descclassname">tahini.core.</code><code class="sig-name descname">UndirectedGraph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nodes</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="#tahini.core.Nodes" title="tahini.core.Nodes">tahini.core.Nodes</a><span class="p">, </span>TypeContainerDataIndexed<span class="p">, </span>pandas.core.indexes.base.Index<span class="p">, </span>Iterable<span class="p">[</span>Hashable<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">edges</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span><a class="reference internal" href="#tahini.core.Edges" title="tahini.core.Edges">tahini.core.Edges</a><span class="p">, </span>TypeContainerDataIndexed<span class="p">, </span>pandas.core.indexes.multi.MultiIndex<span class="p">, </span>Iterable<span class="p">[</span>Sequence<span class="p">[</span>Hashable<span class="p">]</span><span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">order</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nodes_data</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span>Dict<span class="p">, </span>collections.abc.Iterable<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">edges_data</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span>Dict<span class="p">, </span>collections.abc.Iterable<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tahini.core.UndirectedGraph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#tahini.core.Graph" title="tahini.core.Graph"><code class="xref py py-class docutils literal notranslate"><span class="pre">tahini.core.Graph</span></code></a></p>
-</dd></dl>
-
 </div>
 <div class="section" id="tahini-factory-module">
 <h2>tahini.factory module<a class="headerlink" href="#tahini-factory-module" title="Permalink to this headline">¶</a></h2>
@@ -225,22 +52,12 @@
 <span id="tahini-plot-module"></span><h2>tahini.plot module<a class="headerlink" href="#module-tahini.plot" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt id="tahini.plot.get_positions">
-<code class="sig-prename descclassname">tahini.plot.</code><code class="sig-name descname">get_positions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">graph</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#tahini.core.Graph" title="tahini.core.Graph">tahini.core.Graph</a></span></em>, <em class="sig-param"><span class="n">layout</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">center</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Sequence<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dim</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#tahini.plot.get_positions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">tahini.plot.</code><code class="sig-name descname">get_positions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">graph</span><span class="p">:</span> <span class="n">tahini.core.graph.Graph</span></em>, <em class="sig-param"><span class="n">layout</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">center</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Sequence<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dim</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>int<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#tahini.plot.get_positions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
 <div class="section" id="module-tahini.testing">
 <span id="tahini-testing-module"></span><h2>tahini.testing module<a class="headerlink" href="#module-tahini.testing" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt id="tahini.testing.assert_container_equal">
-<code class="sig-prename descclassname">tahini.testing.</code><code class="sig-name descname">assert_container_equal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">left</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#tahini.container.ContainerDataIndexed" title="tahini.container.ContainerDataIndexed">tahini.container.ContainerDataIndexed</a></span></em>, <em class="sig-param"><span class="n">right</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#tahini.container.ContainerDataIndexed" title="tahini.container.ContainerDataIndexed">tahini.container.ContainerDataIndexed</a></span></em>, <em class="sig-param"><span class="n">check_dtype</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>bool<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">check_index_type</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>bool<span class="p">, </span>str<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">check_column_type</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>bool<span class="p">, </span>str<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">check_like</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>bool<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">obj</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; NoReturn<a class="headerlink" href="#tahini.testing.assert_container_equal" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="tahini.testing.assert_graph_equal">
-<code class="sig-prename descclassname">tahini.testing.</code><code class="sig-name descname">assert_graph_equal</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">left</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#tahini.core.Graph" title="tahini.core.Graph">tahini.core.Graph</a></span></em>, <em class="sig-param"><span class="n">right</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#tahini.core.Graph" title="tahini.core.Graph">tahini.core.Graph</a></span></em>, <em class="sig-param"><span class="n">obj</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; NoReturn<a class="headerlink" href="#tahini.testing.assert_graph_equal" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 <div class="section" id="module-tahini">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tahini" title="Permalink to this headline">¶</a></h2>
