@@ -42,7 +42,7 @@ class Nodes(ContainerDataIndexed):
             **kwargs,
     ) -> DataFrame:
 
-        df = Nodes(data=get_positions(
+        df = self.__class__(data=get_positions(
             items=self.data.index,
             layout=layout,
             center=center,

@@ -1,8 +1,22 @@
+from functools import partial
+
 import pytest
+import pandas as pd
 
 import tahini.core.edges
 import tahini.core.nodes
 import tahini.testing
+
+name_nodes = tahini.core.nodes.Nodes().names_index[0]
+names_edges = tahini.core.edges.Edges().names_index
+names_undirected_edges = tahini.core.edges.UndirectedEdges().names_index
+
+assert_frame_equal = partial(
+    pd.testing.assert_frame_equal,
+    check_dtype=False,
+    check_column_type=False,
+    check_index_type=False,
+)
 
 
 @pytest.mark.parametrize('args, kwargs', [
@@ -70,3 +84,42 @@ def test_edges_nodes(edges, args, kwargs, expected):
 def test_edges_keep_nodes(edges, args, kwargs, expected):
     edges_keep_nodes = edges.keep_nodes(*args, **kwargs)
     tahini.testing.testing.assert_container_equal(edges_keep_nodes, expected)
+
+
+@pytest.mark.parametrize('edges, args, kwargs, expected', [
+    # empty
+    (
+        tahini.core.edges.Edges(),
+        [],
+        dict(positions_nodes=tahini.core.nodes.Nodes().get_positions()),
+        tahini.core.edges.Edges(data=pd.DataFrame(
+            columns=['position_start_dim_0', 'position_start_dim_1', 'position_end_dim_0', 'position_end_dim_1'],
+        )).data,
+    ),
+    (
+        tahini.core.edges.UndirectedEdges(),
+        [],
+        dict(positions_nodes=tahini.core.nodes.Nodes().get_positions()),
+        tahini.core.edges.UndirectedEdges(data=pd.DataFrame(
+            columns=['position_start_dim_0', 'position_start_dim_1', 'position_end_dim_0', 'position_end_dim_1'],
+        )).data,
+    ),
+    # non empty
+    (
+        tahini.core.edges.Edges(index=[(0, 1)]),
+        [],
+        dict(positions_nodes=tahini.core.nodes.Nodes(index=[0, 1]).get_positions()),
+        tahini.core.edges.Edges(
+            index=[(0, 1)],
+            data=pd.DataFrame(data=dict(
+                position_start_dim_0=[1],
+                position_start_dim_1=[0],
+                position_end_dim_0=[-1],
+                position_end_dim_1=[0],
+            )),
+        ).data,
+    ),
+])
+def test_edges_get_positions(edges, args, kwargs, expected):
+    df = edges.get_positions(*args, **kwargs)
+    assert_frame_equal(df, expected)

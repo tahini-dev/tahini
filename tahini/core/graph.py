@@ -47,7 +47,6 @@ class Graph:
         self._nodes = self._update_nodes_from_edges()
         self._engine_plot = PlotlyEngine(graph=self)
 
-
     @classmethod
     def path(
             cls,
@@ -288,8 +287,8 @@ class Graph:
         neighbors_in = (
             self.edges
             .data_internal
-            .groupby(self.edges.names_index[1])
-            [self.edges.names_index[0]]
+            .groupby(self.edges.names_index[0])
+            [self.edges.names_index[1]]
             .apply(list)
             .rename_axis(index=self.nodes.names_index[0])
             .rename(column_neighbors_in)
@@ -298,8 +297,8 @@ class Graph:
         neighbors_out = (
             self.edges
             .data_internal
-            .groupby(self.edges.names_index[0])
-            [self.edges.names_index[1]]
+            .groupby(self.edges.names_index[1])
+            [self.edges.names_index[0]]
             .apply(list)
             .rename_axis(index=self.nodes.names_index[0])
             .rename(column_neighbors_out)
