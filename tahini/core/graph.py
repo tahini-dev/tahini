@@ -316,9 +316,10 @@ class Graph:
 
     def plot(
             self,
+            *args,
             **kwargs,
     ):
-        return self._engine_plot.plot(**kwargs)
+        return self._engine_plot.plot(*args, **kwargs)
 
 
 class UndirectedGraph(Graph):

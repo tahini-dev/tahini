@@ -21,10 +21,11 @@ class Base:
     def get_positions_nodes(
             self,
             positions_nodes: Optional[DataFrame] = None,
+            **kwargs,
     ) -> DataFrame:
 
         if positions_nodes is None:
-            positions_nodes = self.graph.nodes.update(data=self.graph.nodes.get_positions()).data
+            positions_nodes = self.graph.nodes.update(data=self.graph.nodes.get_positions(**kwargs)).data
 
         if positions_nodes.index.name == self.graph.nodes.names_index[0]:
             positions_nodes = positions_nodes.reset_index()
@@ -35,11 +36,12 @@ class Base:
             self,
             positions_edges: Optional[DataFrame] = None,
             positions_nodes: Optional[DataFrame] = None,
+            **kwargs,
     ) -> DataFrame:
 
         if positions_edges is None:
             if positions_nodes is None:
-                positions_nodes = self.graph.nodes.get_positions()
+                positions_nodes = self.graph.nodes.get_positions(**kwargs)
 
             positions_edges = self.graph.edges.update(
                 data=self.graph.edges.get_positions(positions_nodes=positions_nodes),
@@ -73,10 +75,11 @@ class Plotly(Base):
             hover_data_edges: Optional[Dict] = None,
             kwargs_nodes: Optional[Dict] = None,
             kwargs_edges: Optional[Dict] = None,
+            **kwargs,
     ):
         import plotly.express as px
 
-        positions_nodes = self.get_positions_nodes(positions_nodes=positions_nodes)
+        positions_nodes = self.get_positions_nodes(positions_nodes=positions_nodes, **kwargs)
 
         x = 'position_dim_0'
         y = 'position_dim_1'
@@ -110,7 +113,11 @@ class Plotly(Base):
             )
         )
 
-        positions_edges = self.get_positions_edges(positions_edges=positions_edges, positions_nodes=positions_nodes)
+        positions_edges = self.get_positions_edges(
+            positions_edges=positions_edges,
+            positions_nodes=positions_nodes,
+            **kwargs,
+        )
 
         diameter_node_default = size_node_default * self._ratio_length_size
 
