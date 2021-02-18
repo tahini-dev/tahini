@@ -71,6 +71,7 @@ class Plotly(Base):
             size_node_default: Optional[Number] = None,
             arrow_edge_length: Optional[Number] = None,
             arrow_edge_angle: Optional[Number] = None,
+            show_arrow: Optional[bool] = None,
             hover_data_nodes: Optional[Dict] = None,
             hover_data_edges: Optional[Dict] = None,
             kwargs_nodes: Optional[Dict] = None,
@@ -109,7 +110,7 @@ class Plotly(Base):
             .update_xaxes(visible=False, showgrid=False)
             .update_yaxes(visible=False, showgrid=False)
             .for_each_trace(
-                lambda trace: trace.update(marker_size=size_node_default) if trace['marker_size'] is None else (),
+                lambda t: t.update(marker_size=size_node_default) if t['marker_size'] is None else (),
             )
         )
 
@@ -144,23 +145,24 @@ class Plotly(Base):
             .drop(columns=['length_raw', 'skip_dim_0', 'fraction_length', 'skip_dim_1'])
         )
 
-        annotations_fig = None
-        if type(self.graph.edges) is Edges:
-            annotations_fig = [
-                dict(
-                    x=row['position_dim_0_end'],
-                    y=row['position_dim_1_end'],
-                    text='',
-                    showarrow=True,
-                    axref='x',
-                    ayref='y',
-                    ax=row['position_dim_0_start'],
-                    ay=row['position_dim_1_start'],
-                    arrowhead=3,
-                    arrowsize=4,
-                )
-                for _, row in positions_edges.iterrows()
-            ]
+        if show_arrow is None:
+            show_arrow = type(self.graph.edges) is Edges
+
+        annotations_fig = [
+            dict(
+                x=row['position_dim_0_end'],
+                y=row['position_dim_1_end'],
+                text='',
+                showarrow=show_arrow,
+                axref='x',
+                ayref='y',
+                ax=row['position_dim_0_start'],
+                ay=row['position_dim_1_start'],
+                arrowhead=3,
+                arrowsize=4,
+            )
+            for _, row in positions_edges.iterrows()
+        ]
 
         positions_edges = (
             positions_edges
@@ -225,7 +227,7 @@ class Plotly(Base):
             .update_xaxes(visible=False, showgrid=False)
             .update_yaxes(visible=False, showgrid=False)
             .for_each_trace(
-                lambda trace: trace.update(line=dict(width=0)) if trace['line']['width'] is None else (),
+                lambda t: t.update(line=dict(width=0)) if t['line']['width'] is None else (),
             )
         )
 
