@@ -1,0 +1,7 @@
+name: tahini
+channels:
+  - conda-forge
+dependencies:
+  - pip
+  - pip:
+    - tahini[all]
