@@ -5,4 +5,4 @@ channels:
 dependencies:
   - pip
   - pip:
-    - tahini[all]
+    - -U tahini[all]
