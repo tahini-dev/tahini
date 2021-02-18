@@ -1,53 +1,23 @@
 tahini package
 ==============
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tahini.core
+   tahini.plot
+   tahini.testing
+
 Submodules
 ----------
 
-tahini.accessor module
-----------------------
-
-.. automodule:: tahini.accessor
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-tahini.container module
------------------------
-
-.. automodule:: tahini.container
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-tahini.core module
+tahini.meta module
 ------------------
 
-.. automodule:: tahini.core
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-tahini.factory module
----------------------
-
-.. automodule:: tahini.factory
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-tahini.plot module
-------------------
-
-.. automodule:: tahini.plot
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-tahini.testing module
----------------------
-
-.. automodule:: tahini.testing
+.. automodule:: tahini.meta
    :members:
    :undoc-members:
    :show-inheritance:
