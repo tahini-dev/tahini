@@ -7,7 +7,7 @@ from pandas import DataFrame
 
 if TYPE_CHECKING:
     from ..core.graph import TypeGraph
-from ..core.edges import Edges
+from ..core.edges import UndirectedEdges
 
 
 class Base:
@@ -71,7 +71,7 @@ class Plotly(Base):
             size_node_default: Optional[Number] = None,
             arrow_edge_length: Optional[Number] = None,
             arrow_edge_angle: Optional[Number] = None,
-            show_arrow: Optional[bool] = None,
+            arrow_head: Optional[bool] = None,
             hover_data_nodes: Optional[Dict] = None,
             hover_data_edges: Optional[Dict] = None,
             kwargs_nodes: Optional[Dict] = None,
@@ -145,20 +145,23 @@ class Plotly(Base):
             .drop(columns=['length_raw', 'skip_dim_0', 'fraction_length', 'skip_dim_1'])
         )
 
-        if show_arrow is None:
-            show_arrow = type(self.graph.edges) is Edges
+        if type(self.graph.edges) is UndirectedEdges:
+            arrow_head = 0
+        else:
+            if arrow_head is None:
+                arrow_head = 3
 
         annotations_fig = [
             dict(
                 x=row['position_dim_0_end'],
                 y=row['position_dim_1_end'],
                 text='',
-                showarrow=show_arrow,
+                showarrow=True,
                 axref='x',
                 ayref='y',
                 ax=row['position_dim_0_start'],
                 ay=row['position_dim_1_start'],
-                arrowhead=3,
+                arrowhead=arrow_head,
                 arrowsize=4,
             )
             for _, row in positions_edges.iterrows()

@@ -171,10 +171,11 @@ def test_get_positions_edges(engine, args, kwargs, expected):
 @pytest.mark.parametrize('engine, args, kwargs', [
     # empty
     (tahini.plot.engine.Plotly(graph=tahini.core.graph.Graph()), [], dict()),
-    # non empty graph with nodes
+    # non empty with nodes
     (tahini.plot.engine.Plotly(graph=tahini.core.graph.Graph(order=10)), [], dict()),
-    # non empty graph with nodes and edges
+    # non empty with nodes and edges
     (tahini.plot.engine.Plotly(graph=tahini.core.graph.Graph.star(order=10)), [], dict()),
+    (tahini.plot.engine.Plotly(graph=tahini.core.graph.UndirectedGraph.star(order=10)), [], dict()),
 ])
 def test_plotly_plot(engine, args, kwargs):
     fig = engine.plot(*args, **kwargs)
