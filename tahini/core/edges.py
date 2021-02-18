@@ -55,8 +55,8 @@ class Edges(ContainerDataIndexedMulti):
                     positions_nodes
                     [['position_dim_0', 'position_dim_1']]
                     .rename(columns={
-                        'position_dim_0': 'position_start_dim_0',
-                        'position_dim_1': 'position_start_dim_1',
+                        'position_dim_0': 'position_dim_0_start',
+                        'position_dim_1': 'position_dim_1_start',
                     })
                 ),
                 how='left',
@@ -68,8 +68,8 @@ class Edges(ContainerDataIndexedMulti):
                     positions_nodes
                     [['position_dim_0', 'position_dim_1']]
                     .rename(columns={
-                        'position_dim_0': 'position_end_dim_0',
-                        'position_dim_1': 'position_end_dim_1',
+                        'position_dim_0': 'position_dim_0_end',
+                        'position_dim_1': 'position_dim_1_end',
                     })
                 ),
                 how='left',

@@ -93,7 +93,7 @@ def test_edges_keep_nodes(edges, args, kwargs, expected):
         [],
         dict(positions_nodes=tahini.core.nodes.Nodes().get_positions()),
         tahini.core.edges.Edges(data=pd.DataFrame(
-            columns=['position_start_dim_0', 'position_start_dim_1', 'position_end_dim_0', 'position_end_dim_1'],
+            columns=['position_dim_0_start', 'position_dim_1_start', 'position_dim_0_end', 'position_dim_1_end'],
         )).data,
     ),
     (
@@ -101,7 +101,7 @@ def test_edges_keep_nodes(edges, args, kwargs, expected):
         [],
         dict(positions_nodes=tahini.core.nodes.Nodes().get_positions()),
         tahini.core.edges.UndirectedEdges(data=pd.DataFrame(
-            columns=['position_start_dim_0', 'position_start_dim_1', 'position_end_dim_0', 'position_end_dim_1'],
+            columns=['position_dim_0_start', 'position_dim_1_start', 'position_dim_0_end', 'position_dim_1_end'],
         )).data,
     ),
     # non empty
@@ -112,10 +112,10 @@ def test_edges_keep_nodes(edges, args, kwargs, expected):
         tahini.core.edges.Edges(
             index=[(0, 1)],
             data=pd.DataFrame(data=dict(
-                position_start_dim_0=[1],
-                position_start_dim_1=[0],
-                position_end_dim_0=[-1],
-                position_end_dim_1=[0],
+                position_dim_0_start=[1],
+                position_dim_1_start=[0],
+                position_dim_0_end=[-1],
+                position_dim_1_end=[0],
             )),
         ).data,
     ),
