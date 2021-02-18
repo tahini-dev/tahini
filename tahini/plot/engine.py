@@ -201,8 +201,8 @@ class Plotly(Base):
 
         hover_data_edges[self.graph.edges.names_index[0]] = hover_data_edges.get(self.graph.edges.names_index[0], True)
         hover_data_edges[self.graph.edges.names_index[1]] = hover_data_edges.get(self.graph.edges.names_index[1], True)
-        hover_data_edges[x] = hover_data_edges.get(x, True)
-        hover_data_edges[y] = hover_data_edges.get(y, True)
+        hover_data_edges[x] = hover_data_edges.get(x, False)
+        hover_data_edges[y] = hover_data_edges.get(y, False)
 
         if kwargs_edges is None:
             kwargs_edges = dict()
