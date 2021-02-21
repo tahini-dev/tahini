@@ -49,12 +49,14 @@ class Edges(ContainerDataIndexedMulti):
             **kwargs,
     ) -> DataFrame:
 
+        if name_nodes in positions_nodes.columns:
+            positions_nodes = positions_nodes.set_index(name_nodes)
+
         df = self.__class__(data=(
             self.data_internal
             .merge(
                 right=(
                     positions_nodes
-                    .set_index(name_nodes)
                     [['position_dim_0', 'position_dim_1']]
                     .rename(columns={
                         'position_dim_0': 'position_dim_0_start',
@@ -68,7 +70,6 @@ class Edges(ContainerDataIndexedMulti):
             .merge(
                 right=(
                     positions_nodes
-                    .set_index(name_nodes)
                     [['position_dim_0', 'position_dim_1']]
                     .rename(columns={
                         'position_dim_0': 'position_dim_0_end',
