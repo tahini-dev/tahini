@@ -20,6 +20,7 @@ __all__ = [
 ]
 
 TypeEdges = TypeVar('TypeEdges', bound='Edges')
+name_nodes = Nodes().names_index[0]
 
 
 class Edges(ContainerDataIndexedMulti):
@@ -53,6 +54,7 @@ class Edges(ContainerDataIndexedMulti):
             .merge(
                 right=(
                     positions_nodes
+                    .set_index(name_nodes)
                     [['position_dim_0', 'position_dim_1']]
                     .rename(columns={
                         'position_dim_0': 'position_dim_0_start',
@@ -66,6 +68,7 @@ class Edges(ContainerDataIndexedMulti):
             .merge(
                 right=(
                     positions_nodes
+                    .set_index(name_nodes)
                     [['position_dim_0', 'position_dim_1']]
                     .rename(columns={
                         'position_dim_0': 'position_dim_0_end',

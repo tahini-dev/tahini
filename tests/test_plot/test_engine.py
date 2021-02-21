@@ -176,6 +176,12 @@ def test_get_positions_edges(engine, args, kwargs, expected):
     # non empty with nodes and edges
     (tahini.plot.engine.Plotly(graph=tahini.core.graph.Graph.star(order=10)), [], dict()),
     (tahini.plot.engine.Plotly(graph=tahini.core.graph.UndirectedGraph.star(order=10)), [], dict()),
+    # non default nodes
+    (
+        tahini.plot.engine.Plotly(graph=tahini.core.graph.Graph(nodes=['a', 'b', 'c'], edges=[('a', 'b'), ('b', 'c')])),
+        [],
+        dict(),
+    ),
 ])
 def test_plotly_plot(engine, args, kwargs):
     fig = engine.plot(*args, **kwargs)
