@@ -314,6 +314,42 @@ class Graph:
 
         return df
 
+    @staticmethod
+    def _fill_na_adjacency_matrix(
+            df: DataFrame,
+    ) -> DataFrame:
+        return df
+
+    def get_adjacency_matrix(
+            self,
+            weight: Optional[str] = None,
+    ) -> DataFrame:
+
+        if weight is None:
+            weight = 'weight'
+
+        df = self.edges.data_internal
+
+        if weight not in df:
+            df = df.assign(**{weight: 1})
+
+        nodes = self.nodes.data.index
+
+        df = (
+            df
+            .set_index(self.edges.names_index)
+            [weight]
+            .unstack(level=self.edges.names_index[1])
+            .reindex(
+                index=nodes.rename(self.edges.names_index[0]),
+                columns=nodes.rename(self.edges.names_index[1]),
+            )
+        )
+
+        df = self._fill_na_adjacency_matrix(df=df).fillna(0)
+
+        return df
+
     def plot(
             self,
             *args,
@@ -334,3 +370,9 @@ class UndirectedGraph(Graph):
             edges: MultiIndex,
     ) -> MultiIndex:
         return edges.map(frozenset).drop_duplicates().map(tuple)
+
+    @staticmethod
+    def _fill_na_adjacency_matrix(
+            df: DataFrame,
+    ) -> DataFrame:
+        return df.fillna(df.T)

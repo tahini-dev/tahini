@@ -1005,3 +1005,120 @@ def test_graph_degrees(graph, expected):
 def test_graph_get_neighbors(graph, expected):
     df = graph.neighbors
     assert_frame_equal(df, expected)
+
+
+@pytest.mark.parametrize('graph, args, kwargs, expected', [
+    # empty
+    (
+        tahini.core.graph.Graph(),
+        [],
+        dict(),
+        pd.DataFrame(index=pd.Index([], name='node_out'), columns=pd.Index([], name='node_in')),
+    ),
+    (
+        tahini.core.graph.UndirectedGraph(),
+        [],
+        dict(),
+        pd.DataFrame(index=pd.Index([], name='node_0'), columns=pd.Index([], name='node_1')),
+    ),
+    # single node no edges
+    (
+        tahini.core.graph.Graph(nodes=[0]),
+        [],
+        dict(),
+        pd.DataFrame(data=[[0]], index=pd.Index([0], name='node_out'), columns=pd.Index([0], name='node_in')),
+    ),
+    (
+        tahini.core.graph.UndirectedGraph(nodes=[0]),
+        [],
+        dict(),
+        pd.DataFrame(data=[[0]], index=pd.Index([0], name='node_0'), columns=pd.Index([0], name='node_1')),
+    ),
+    # two node no edges
+    (
+        tahini.core.graph.Graph(nodes=[0, 1]),
+        [],
+        dict(),
+        pd.DataFrame(
+            data=[[0, 0], [0, 0]],
+            index=pd.Index([0, 1], name='node_out'),
+            columns=pd.Index([0, 1], name='node_in'),
+        ),
+    ),
+    (
+        tahini.core.graph.UndirectedGraph(nodes=[0, 1]),
+        [],
+        dict(),
+        pd.DataFrame(
+            data=[[0, 0], [0, 0]],
+            index=pd.Index([0, 1], name='node_0'),
+            columns=pd.Index([0, 1], name='node_1'),
+        ),
+    ),
+    # single edge
+    (
+        tahini.core.graph.Graph(edges=[(0, 1)]),
+        [],
+        dict(),
+        pd.DataFrame(
+            data=[[0, 1], [0, 0]],
+            index=pd.Index([0, 1], name='node_out'),
+            columns=pd.Index([0, 1], name='node_in'),
+        ),
+    ),
+    (
+        tahini.core.graph.UndirectedGraph(edges=[(0, 1)]),
+        [],
+        dict(),
+        pd.DataFrame(
+            data=[[0, 1], [1, 0]],
+            index=pd.Index([0, 1], name='node_0'),
+            columns=pd.Index([0, 1], name='node_1'),
+        ),
+    ),
+    # weight
+    (
+        tahini.core.graph.Graph(edges_data=pd.DataFrame(data=dict(weight=[0.1]), index=[(0, 1)])),
+        [],
+        dict(),
+        pd.DataFrame(
+            data=[[0, .1], [0, 0]],
+            index=pd.Index([0, 1], name='node_out'),
+            columns=pd.Index([0, 1], name='node_in'),
+        ),
+    ),
+    (
+        tahini.core.graph.UndirectedGraph(edges_data=pd.DataFrame(data=dict(weight=[0.1]), index=[(0, 1)])),
+        [],
+        dict(),
+        pd.DataFrame(
+            data=[[0, .1], [.1, 0]],
+            index=pd.Index([0, 1], name='node_0'),
+            columns=pd.Index([0, 1], name='node_1'),
+        ),
+    ),
+    # weight different column
+    (
+        tahini.core.graph.Graph(edges_data=pd.DataFrame(data=dict(a=[0.1]), index=[(0, 1)])),
+        [],
+        dict(weight='a'),
+        pd.DataFrame(
+            data=[[0, .1], [0, 0]],
+            index=pd.Index([0, 1], name='node_out'),
+            columns=pd.Index([0, 1], name='node_in'),
+        ),
+    ),
+    (
+        tahini.core.graph.UndirectedGraph(edges_data=pd.DataFrame(data=dict(a=[0.1]), index=[(0, 1)])),
+        [],
+        dict(weight='a'),
+        pd.DataFrame(
+            data=[[0, .1], [.1, 0]],
+            index=pd.Index([0, 1], name='node_0'),
+            columns=pd.Index([0, 1], name='node_1'),
+        ),
+    ),
+])
+def test_graph_get_adjacency_matrix(graph, args, kwargs, expected):
+    df = graph.get_adjacency_matrix(*args, **kwargs)
+    assert_frame_equal(df, expected)
