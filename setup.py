@@ -16,7 +16,7 @@ extras_require['all'] = sorted(set(sum(extras_require.values(), [])))
 
 setup(
     name='tahini',
-    version='2021.02.5',
+    version='2021.03.1',
     author='tahini-dev',
     author_email='tahini.dev@gmail.com',
     description='Python package for graph theory',
